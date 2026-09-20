@@ -70,7 +70,7 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Web application hosting? | App Service | VM (full control, more management) |
 | Bigger machine? | Scale Up | Scale Out (more machines) |
 | More machines? | Scale Out | Scale Up (bigger machine) |
-| Encrypt VM memory? | Encryption at Host | Storage encryption (disk only) |
+| Encrypt temporary disk and caches? | Encryption at Host | Disk encryption (all layers) |
 | Move VM to different RG? | Requires same subscription | Cross-subscription move (complex) |
 
 ---

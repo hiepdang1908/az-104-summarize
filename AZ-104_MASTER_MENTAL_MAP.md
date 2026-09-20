@@ -242,7 +242,7 @@ Data persistence
     ↓
 Security
 ├── Encryption at rest
-├── Encryption at host (disk encryption + VM memory)
+├── Encryption at host (temporary disk and cache encryption)
 ├── Access via Bastion
 └── Managed Identity (for service-to-service)
 ```

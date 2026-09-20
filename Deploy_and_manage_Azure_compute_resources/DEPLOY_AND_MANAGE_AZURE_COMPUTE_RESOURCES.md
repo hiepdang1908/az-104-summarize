@@ -715,28 +715,34 @@ Out/In = Machine count (horizontal)
 
 ## Encryption at Host
 
-**What it is:** Encryption of VM temporary disk and OS disk caches
+**What it is:** Encryption of VM temporary storage and disk caches using host hardware
 
-**Includes:**
+**Protects:**
 
-- VM temporary disk
+- VM temporary disk (ephemeral storage)
 - OS disk cache
 - Data disk cache
-- VM memory (for server-side encryption)
+- Data being processed by the host hypervisor before reaching Azure Storage
+
+**Does NOT protect:**
+
+- Active VM memory (RAM) — use Azure Disk Encryption or Confidential VMs for full memory encryption
 
 **Trade-off:**
 
 ```text
-Enables: Full-disk encryption even for VM memory
-Costs: ~3-5% performance impact
+Enables: Host-level encryption of temporary storage and caches
+Costs: Minimal performance impact (transparent to VM)
 ```
 
 **When to use:**
 
 ```text
-Regulatory requirement: All data must be encrypted
+Regulatory requirement: All temporary/cached data must be encrypted at hardware level
     ↓
 Enable encryption at host
+
+Alternative for full memory encryption: Use Confidential VM or Azure Disk Encryption
 ```
 
 ---

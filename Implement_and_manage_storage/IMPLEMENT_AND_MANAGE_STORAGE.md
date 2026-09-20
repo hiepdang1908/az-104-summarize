@@ -80,7 +80,7 @@ A storage account is:
 - **Account name** — must be globally unique (3-24 alphanumeric characters)
 - **DNS name** — storageaccountname.blob.core.windows.net
 - **Account key** — primary and secondary keys (each 88 characters)
-- **Access tier** — Hot (frequently accessed) or Cold (infrequent)
+- **Access tier** — Hot (frequently accessed), Cool (infrequent), or Archive (rarely accessed)
 - **Redundancy** — LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS
 
 ### Storage Account SKUs

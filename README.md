@@ -1,5 +1,11 @@
 # Hiep's Study Map for Microsoft AZ-104
 
+---
+
+**[Home](README.md)** | **Next:** [Master Mental Map →](AZ-104_MASTER_MENTAL_MAP.md)
+
+---
+
 ## Purpose
 
 An independent, concept-first, decision-focused knowledge repository for **Exam AZ-104: Microsoft Azure Administrator**.

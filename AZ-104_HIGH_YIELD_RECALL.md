@@ -1,5 +1,11 @@
 # AZ-104 2026 High-Yield Recall
 
+---
+
+**← [Previous: Networking](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)** | **[Home](README.md)** | **[Next: Objective Map →](AZ-104_OBJECTIVE_MAP.md)**
+
+---
+
 Use this file for final exam revision only. Each row is a decision trigger, not a full explanation.
 
 For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.md) and domain guides.

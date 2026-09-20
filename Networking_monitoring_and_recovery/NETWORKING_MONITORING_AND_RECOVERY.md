@@ -1,5 +1,11 @@
 # Networking, Monitoring, and Recovery
 
+---
+
+**← [Previous: Compute](../Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md)** | **[Home](../README.md)** | **[Next: High-Yield Recall →](../AZ-104_HIGH_YIELD_RECALL.md)**
+
+---
+
 This guide covers three official Microsoft domains consolidated into one learning resource:
 
 - **PART I — Virtual Networking** (Microsoft Domain 4)

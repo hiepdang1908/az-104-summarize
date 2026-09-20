@@ -1,5 +1,11 @@
 # Manage Azure Identities and Governance
 
+---
+
+**← [Previous: Master Mental Map](../AZ-104_MASTER_MENTAL_MAP.md)** | **[Home](../README.md)** | **[Next: Storage →](../Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md)**
+
+---
+
 ## Big Picture
 
 An Azure administrator is responsible for **who can access what and why**.

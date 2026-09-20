@@ -1,5 +1,11 @@
 # Implement and Manage Storage
 
+---
+
+**← [Previous: Identity & Governance](../Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md)** | **[Home](../README.md)** | **[Next: Compute →](../Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md)**
+
+---
+
 ## Big Picture
 
 An Azure administrator is responsible for:

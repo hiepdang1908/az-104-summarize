@@ -1,5 +1,11 @@
 # AZ-104 Master Mental Map
 
+---
+
+**← [Previous: README](README.md)** | **[Home](README.md)** | **[Next: Identity & Governance →](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md)**
+
+---
+
 This file connects all Azure administration concepts. Use the domain guides for detailed explanations and the High-Yield sheet for last-minute recall.
 
 ## AZ-104 Core Decision Chain

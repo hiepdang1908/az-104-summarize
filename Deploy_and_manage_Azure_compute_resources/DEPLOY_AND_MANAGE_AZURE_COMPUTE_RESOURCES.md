@@ -1,5 +1,11 @@
 # Deploy and Manage Azure Compute Resources
 
+---
+
+**← [Previous: Storage](../Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md)** | **[Home](../README.md)** | **[Next: Networking →](../Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)**
+
+---
+
 ## Big Picture
 
 An Azure administrator is responsible for:

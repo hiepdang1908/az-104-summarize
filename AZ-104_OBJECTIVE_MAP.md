@@ -1,5 +1,11 @@
 # AZ-104 Objective Map
 
+---
+
+**← [Previous: High-Yield Recall](AZ-104_HIGH_YIELD_RECALL.md)** | **[Home](README.md)**
+
+---
+
 This file maps every official Microsoft AZ-104 objective to repository sections.
 
 **Blueprint date:** April 17, 2026

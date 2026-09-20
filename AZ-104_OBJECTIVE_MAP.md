@@ -74,7 +74,7 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Configure Azure Storage redundancy | [Storage Guide — Storage Redundancy](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#storage-redundancy) | Covered |
 | Configure object replication | [Storage Guide — Blob Replication](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#blob-replication) | Covered |
 | Configure storage account encryption | [Storage Guide — Encryption](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#encryption) | Covered |
-| Manage data by using Azure Storage Explorer and AzCopy | [Storage Guide — Encryption](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#encryption) | Supporting |
+| Manage data by using Azure Storage Explorer and AzCopy | [Storage Guide — Data Management](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#managing-data-with-azcopy-and-storage-explorer) | Covered |
 
 ### Configure Azure Files and Azure Blob Storage
 
@@ -97,7 +97,7 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Microsoft Objective | Repository Section | Coverage |
 |---|---|---|
 | Interpret an Azure Resource Manager template | [Compute Guide — ARM Templates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | Covered |
-| Modify an existing Azure Resource Manager template | [Compute Guide — ARM Templates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | Supporting |
+| Modify an existing Azure Resource Manager template | [Compute Guide — ARM Templates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | Covered |
 | Modify an existing Bicep file | [Compute Guide — Bicep](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#bicep) | Covered |
 | Deploy resources by using ARM template or Bicep | [Compute Guide — Deployment](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#deployment) | Covered |
 | Export deployment as ARM template or convert ARM to Bicep | [Compute Guide — ARM Template Export](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-template-export) | Covered |
@@ -121,7 +121,7 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Create and manage Azure Container Registry | [Compute Guide — ACR](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-registry-acr) | Covered |
 | Provision container using Azure Container Instances | [Compute Guide — ACI](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-instances-aci) | Covered |
 | Provision container using Azure Container Apps | [Compute Guide — Container Apps](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-apps) | Covered |
-| Manage sizing and scaling for containers | [Compute Guide — Containers](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#containers) | Supporting |
+| Manage sizing and scaling for containers | [Compute Guide — Container Sizing and Scaling](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#container-sizing-and-resource-limits) | Covered |
 
 ### Create and Configure Azure App Service
 
@@ -130,9 +130,9 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Provision an App Service plan | [Compute Guide — App Service Plan](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-plan) | Covered |
 | Configure scaling for App Service plan | [Compute Guide — App Service Plan](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-plan) | Covered |
 | Create an App Service | [Compute Guide — App Service](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service) | Covered |
-| Configure certificates and TLS | [Compute Guide — App Service](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service) | Supporting |
-| Map custom DNS name to App Service | [Compute Guide — App Service](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service) | Supporting |
-| Configure backup for App Service | [Compute Guide — App Service](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service) | Supporting |
+| Configure certificates and TLS | [Compute Guide — TLS/SSL Certificates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#tlsssl-certificates) | Covered |
+| Map custom DNS name to App Service | [Compute Guide — Custom DNS Names](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#custom-dns-names-and-domain-mapping) | Covered |
+| Configure backup for App Service | [Compute Guide — App Service Backup](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-backup) | Covered |
 | Configure networking for App Service | [Compute Guide — App Service Networking](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-networking) | Covered |
 | Configure deployment slots | [Compute Guide — Deployment Slots](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#deployment-slots) | Covered |
 
@@ -178,7 +178,7 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 |---|---|---|
 | Interpret metrics in Azure Monitor | [Monitoring Guide — Metrics](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#metrics) | Covered |
 | Configure log settings in Azure Monitor | [Monitoring Guide — Azure Monitor](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-monitor) | Covered |
-| Query and analyze logs in Azure Monitor | [Monitoring Guide — Logs](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#logs) | Supporting |
+| Query and analyze logs in Azure Monitor | [Monitoring Guide — KQL Examples](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#logs) | Covered |
 | Set up alert rules, action groups, and alert processing | [Monitoring Guide — Alerts](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#alerts) | Covered |
 | Configure monitoring of VMs, storage, networks | [Monitoring Guide — Azure Monitor Insights](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-monitor-insights) | Covered |
 | Use Network Watcher and Connection monitor | [Monitoring Guide — Network Watcher](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#network-watcher) | Covered |
@@ -193,7 +193,7 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Perform backup and restore operations | [Recovery Guide — Backup and Restore Flow](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#backup-and-restore-flow) | Covered |
 | Configure Azure Site Recovery | [Recovery Guide — Azure Site Recovery](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-site-recovery) | Covered |
 | Perform failover using Site Recovery | [Recovery Guide — Failover](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#key-concepts) | Covered |
-| Configure and interpret reports and alerts | [Recovery Guide — Alerts](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#alerts) | Supporting |
+| Configure and interpret reports and alerts | [Recovery Guide — Backup Monitoring and Alerts](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#alerts) | Covered |
 
 ---
 
@@ -215,12 +215,24 @@ This file maps every official Microsoft AZ-104 objective to repository sections.
 | Metric | Value |
 |---|---|
 | Total Microsoft Objectives | 65 |
-| Covered | 60 |
-| Supporting | 5 |
+| Covered | 65 |
+| Supporting | 0 |
 | Out of V1 Scope | 0 |
-| Coverage %  | 100% |
+| Coverage % | 100% |
 
-All official Microsoft AZ-104 objectives are represented in this repository at Version 1.
+All official Microsoft AZ-104 objectives are now fully covered in this repository at Version 1.
+
+**Coverage upgrade note (Final Audit):**
+- Elevated 8 objectives from "Supporting" to "Covered":
+  - Manage data with AzCopy and Storage Explorer
+  - Modify ARM templates (added modification examples)
+  - Configure certificates and TLS (added HTTPS/SSL binding)
+  - Map custom DNS names (added A/CNAME/ALIAS explanation)
+  - Configure backup for App Service (added backup policy and restore)
+  - Query and analyze logs in Azure Monitor (added KQL examples)
+  - Manage sizing and scaling for containers (added sizing strategy and auto-scaling)
+  - Configure and interpret reports and alerts (integrated with monitoring)
+- All 65 objectives now have substantive content
 
 ---
 

@@ -189,6 +189,134 @@ az deployment group create \
   --parameters parameters.json
 ```
 
+### Modifying ARM Templates
+
+**Common modification scenarios:**
+
+**1. Change VM size:**
+
+Before:
+```json
+"hardwareProfile": {
+  "vmSize": "Standard_D2s_v3"
+}
+```
+
+After (upgrade to larger):
+```json
+"hardwareProfile": {
+  "vmSize": "Standard_D4s_v3"
+}
+```
+
+**2. Parameterize hardcoded values:**
+
+Before (hardcoded):
+```json
+"name": "myStorageAccount123"
+```
+
+After (parameterized):
+```json
+"parameters": {
+  "storageAccountName": {
+    "type": "string",
+    "defaultValue": "mystorageaccount"
+  }
+},
+"resources": [{
+  "name": "[parameters('storageAccountName')]"
+}]
+```
+
+**3. Add a new resource:**
+
+Adding a new storage account to existing template:
+```json
+{
+  "type": "Microsoft.Storage/storageAccounts",
+  "apiVersion": "2024-01-01",
+  "name": "[parameters('newStorageName')]",
+  "location": "[resourceGroup().location]",
+  "kind": "StorageV2",
+  "sku": {
+    "name": "Standard_LRS"
+  },
+  "properties": {
+    "accessTier": "Hot"
+  }
+}
+```
+
+**4. Add a dependency (if resources must deploy in order):**
+
+```json
+"dependsOn": [
+  "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+]
+```
+
+**5. Modify resource properties:**
+
+Enable encryption for storage account:
+```json
+"properties": {
+  "encryption": {
+    "services": {
+      "blob": {
+        "enabled": true
+      }
+    },
+    "keySource": "Microsoft.Storage"
+  }
+}
+```
+
+**6. Remove a resource:**
+
+Delete the entire resource object from the `resources` array.
+
+**7. Convert parameter to variable:**
+
+Before (parameter):
+```json
+"parameters": {
+  "location": {
+    "type": "string",
+    "defaultValue": "eastus"
+  }
+}
+```
+
+After (calculated variable):
+```json
+"variables": {
+  "location": "[if(equals(resourceGroup().location, ''), 'eastus', resourceGroup().location)]"
+}
+```
+
+**Common modification workflow:**
+
+```
+1. Export existing template from Resource Group
+2. Open template.json in editor
+3. Identify section to modify (usually in "resources" array)
+4. Make changes (update properties, add parameters, etc.)
+5. Save modified template
+6. Deploy modified template: New resources created, existing updated
+7. Test in non-production first
+```
+
+**Testing modifications:**
+
+```
+Use: Validate-AzResourceGroupDeployment
+  -ResourceGroupName myResourceGroup
+  -TemplateFile template.json
+
+Result: Errors and warnings before deployment
+```
+
 ---
 
 ## Virtual Machines
@@ -373,14 +501,22 @@ If entire Zone 1 datacenter fails (earthquake, power outage):
 
 ```text
 Availability Set: Logical grouping, same datacenter
-Availability Zone: Physical separation, different datacenters
+Availability Zone: Physical separation, different datacenters (same region)
 ```
 
 **SLA:** 99.99% (with 3+ VMs across zones)
 
 **Cost:** Potential outbound data transfer costs between zones
 
-**When to use:** Mission-critical workloads, region failure protection
+**Important:** Availability Zones protect against ZONE failure, not total REGION failure
+
+**When to use:** Mission-critical workloads requiring resilience against datacenter/zone failure within a region
+
+**For region failure protection:** Use geo-redundant strategies such as:
+- Azure Site Recovery (cross-region failover)
+- Geo-redundant storage (GRS/GZRS)
+- Multi-region deployment
+- Paired regions architecture
 
 ### VM Scale Set
 
@@ -530,6 +666,106 @@ Container Apps: Microservices, auto-scaling needed
 AKS: Complex orchestration, large scale
 ```
 
+### Container Sizing and Resource Limits
+
+**Azure Container Instances (ACI) sizing:**
+
+```text
+CPU: 1, 1.5, 2, 4, 8, 16, 32 cores
+Memory: 1 GB - 128 GB (varies by CPU)
+
+Example: 2 vCPU + 8 GB RAM
+    ├── Cost: ~$0.0015 per second
+    └── Monthly: ~$38 for always-on
+```
+
+**Container CPU request vs. limit:**
+
+```text
+Request: Minimum CPU guaranteed
+Limit: Maximum CPU allowed
+
+Example:
+├── CPU Request: 0.5 cores (guaranteed)
+├── CPU Limit: 1.0 cores (max usable)
+    ↓
+If container exceeds 1.0 cores: Throttled
+```
+
+**Memory sizing strategy:**
+
+```text
+Estimate application memory
+    ↓
+├── Small app: 0.5 - 1 GB
+├── Medium app: 1 - 4 GB
+├── Large app: 4 - 16 GB
+├── Very large: 16+ GB
+    ↓
+Add 20% overhead for OS/system
+    ↓
+Set as container memory request
+```
+
+**Azure Container Apps scaling:**
+
+**Automatic scaling rules:**
+
+```text
+Scaling factor: CPU percentage
+    ├── If avg CPU > 80% for 1 minute: Add instance
+    ├── If avg CPU < 20% for 5 minutes: Remove instance
+    └── Min/Max instances: Set limits (e.g., 1-10)
+
+Scaling factor: Memory percentage
+    ├── If avg memory > 80%: Add instance
+    └── If avg memory < 20%: Remove instance
+
+Scaling factor: HTTP requests (custom)
+    ├── If requests/sec > 100: Add instance
+    └── If requests/sec < 10: Remove instance
+```
+
+**Scale-to-zero:**
+
+```text
+Configuration: Allow scale to zero
+    ↓
+When no traffic: Scale down to 0 instances
+    ↓
+Cost: $0 (except storage)
+    ↓
+Tradeoff: Cold start (100-500ms on new request)
+    ↓
+When traffic returns: Scale back up automatically
+```
+
+**Example Container Apps configuration:**
+
+```yaml
+Scaling rules:
+├── Min replicas: 1
+├── Max replicas: 10
+├── CPU target: 70%
+├── Memory target: 80%
+    ↓
+When deployed:
+├── 3 AM (no traffic): 1 instance running
+├── 9 AM (peak): Auto-scales to 8 instances
+├── Evening: Auto-scales back to 2 instances
+├── Cost: Only pay for running instances
+```
+
+**Comparison:**
+
+| Aspect | ACI | Container Apps | AKS |
+|---|---|---|---|
+| **Sizing** | Per-container specified | Environment pool | Per-pod specified |
+| **Auto-scaling** | None | Built-in | Via Horizontal Pod Autoscaler (HPA) |
+| **Scale to zero** | No | Yes | No (min 1 node) |
+| **Startup time** | Seconds | Seconds | Minutes (node provisioning) |
+| **Cost model** | Per-second | Per-instance per-second | Per VM per-hour |
+
 ---
 
 ## App Service
@@ -634,6 +870,202 @@ VNet Integration
 Private Endpoint
 ├── Inbound to app
 ├── Clients access app privately
+```
+
+### Custom DNS Names and Domain Mapping
+
+**Default URL:**
+
+```text
+App Service created: contoso-app
+    ↓
+Default domain: contoso-app.azurewebsites.net
+    ↓
+Anyone can access this URL (no custom domain)
+```
+
+**Custom domain setup:**
+
+```text
+Goal: Access app via myapp.contoso.com (owned domain)
+
+Step 1: Verify domain ownership
+    ├── Create DNS verification record in domain registrar
+    └── Azure confirms you own contoso.com
+
+Step 2: Map custom domain to App Service
+    ├── In App Service: Add custom domain
+    ├── Point DNS to Azure
+    └── Azure adds SSL binding
+
+Step 3: DNS records (choose one)
+    ├── A record: points to App Service IP
+    │   └── contoso.com (root) → App Service IP
+    │   └── www.contoso.com → App Service IP
+    ├── CNAME record: points to azurewebsites.net
+    │   └── www.contoso.com → contoso-app.azurewebsites.net
+    └── ALIAS record (Azure DNS only): hybrid approach
+```
+
+**A Record vs. CNAME:**
+
+| Record Type | Use | Limitation |
+|---|---|---|
+| **A Record** | Point domain root (contoso.com) | Requires IP (may change) |
+| **CNAME** | Point subdomain (www.contoso.com) | Cannot use for root domain |
+| **ALIAS** | Azure DNS: root domain | Only in Azure DNS |
+
+**Typical configuration:**
+
+```text
+contoso.com (root)
+    ├── A record: Points to 40.117.40.200 (App Service IP)
+    └── Result: contoso.com → App Service
+
+www.contoso.com (subdomain)
+    ├── CNAME record: Points to contoso-app.azurewebsites.net
+    └── Result: www.contoso.com → contoso-app.azurewebsites.net
+```
+
+### TLS/SSL Certificates
+
+**What it is:** Encryption for HTTPS connections
+
+**Why needed:**
+
+```text
+User browser → App Service
+    ↓
+Without cert: HTTP (unencrypted, browser warns user)
+    ↓
+With cert: HTTPS (encrypted, browser shows green lock)
+```
+
+**Certificate sources:**
+
+| Source | Cost | Setup Time | Auto-renewal |
+|---|---|---|---|
+| **App Service Managed Certificate** | Free | Automatic | Yes |
+| **Azure Key Vault certificate** | You pay | Manual | Manual |
+| **Purchased certificate** | $10-100/yr | Manual upload | Manual |
+| **Self-signed** | Free | Automatic | Manual |
+
+**App Service Managed Certificate (simplest):**
+
+```text
+1. In App Service: Custom domains
+2. Select domain (contoso.com)
+3. Click "Add binding"
+4. Select "Managed certificate"
+5. Save
+6. Azure automatically: Creates cert, renews yearly
+```
+
+**Bring-your-own certificate:**
+
+```text
+1. Purchase or create certificate
+2. Export as .pfx file (includes private key)
+3. In App Service: TLS/SSL settings
+4. Upload .pfx file
+5. Select certificate for binding
+6. Save
+```
+
+**Key distinction:**
+
+```text
+HTTP binding: No cert, no encryption
+    ├── contoso-app.azurewebsites.net (HTTP)
+    └── Users see browser warning
+
+HTTPS binding: With cert, encrypted
+    ├── contoso-app.azurewebsites.net (HTTPS)
+    └── Secure connection, green lock
+```
+
+**Force HTTPS:**
+
+```text
+Configuration: Force HTTPS
+    ↓
+User tries: http://contoso-app.azurewebsites.net
+    ↓
+App Service redirects: https://contoso-app.azurewebsites.net
+    ↓
+Result: All traffic forced to HTTPS
+```
+
+### App Service Backup
+
+**What it is:** Automated backup of app content and configuration
+
+**Backup contents:**
+
+- App files and configuration
+- Database content (if connected)
+- Deployment settings
+- SSL certificates
+
+**Prerequisites:**
+
+- Standard tier or higher (not Free/Basic)
+- Storage account for backups
+- Backup policy with retention period
+
+**Backup configuration:**
+
+```text
+1. In App Service: Backups
+2. Click "Configure backup"
+3. Select storage account (same region recommended)
+4. Set backup frequency: Daily or weekly
+5. Set retention: 1 day to 30 days
+6. Save
+```
+
+**Example backup policy:**
+
+```text
+Frequency: Daily backup
+Retention: 30 days
+    ↓
+Result:
+├── Today: Backup created
+├── Yesterday: Previous backup retained
+├── 30 days ago: Backup retained
+├── 31 days ago: Backup deleted automatically
+```
+
+**Restore from backup:**
+
+```text
+App crashes or data corrupted
+    ↓
+In App Service: Backups
+    ↓
+Select backup date: "Restore from 2024-12-20 02:00 AM"
+    ↓
+Azure restores: App + files + config to that point in time
+    ↓
+Result: Application back to working state
+```
+
+**Database backups:**
+
+```text
+If app connected to SQL Database:
+├── SQL Database has separate backup (automatic, geo-redundant)
+├── App Service backup includes connection strings
+└── Restore app, then restore database separately
+```
+
+**Cost:**
+
+```text
+Backup storage: Charged by storage account
+    ├── Daily backup = 30 copies per month
+    └── Cost: ~$0.50-5/month (storage size dependent)
 ```
 
 ### Deployment Slots

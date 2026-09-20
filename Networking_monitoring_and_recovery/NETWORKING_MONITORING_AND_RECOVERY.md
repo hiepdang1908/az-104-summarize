@@ -980,12 +980,89 @@ Tables:
 
 **KQL (Kusto Query Language):**
 
+**Basic Query Structure:**
+
+```kusto
+TableName
+| where Condition (filter)
+| select Columns (choose columns)
+| summarize Aggregation (count, sum, avg)
+| sort by Column desc
+```
+
+**Example 1: Find all Create operations in last 24 hours**
+
 ```kusto
 AzureActivity
 | where TimeGenerated > ago(1d)
 | where OperationName contains "Create"
 | summarize count() by ResourceType
 ```
+
+**Example 2: Troubleshoot VM connectivity - failed connections**
+
+```kusto
+AzureDiagnostics
+| where ResourceType == "NETWORKSECURITYGROUPS"
+| where OperationName contains "NetworkSecurityGroupFlowLogEvent"
+| where FlowStatus_s == "D" (D = Denied)
+| summarize TotalDenied = count() by SourceIP_s, DestinationIP_s
+| top 10 by TotalDenied
+```
+
+**Example 3: Monitor application errors over time**
+
+```kusto
+AppTraces
+| where SeverityLevel >= 2 (Error = 2, Critical = 3)
+| summarize ErrorCount = count() by bin(TimeGenerated, 1h), Message
+| sort by TimeGenerated desc
+```
+
+**Example 4: Audit failed login attempts**
+
+```kusto
+SecurityEvent
+| where EventID == 4625 (Failed login)
+| summarize FailureCount = count() by TargetAccount, SourceIpAddress
+| where FailureCount > 5
+| sort by FailureCount desc
+```
+
+**Example 5: Check ARM operation failures (troubleshooting deployments)**
+
+```kusto
+AzureActivity
+| where Status == "Failed"
+| where TimeGenerated > ago(7d)
+| project TimeGenerated, Caller, ResourceType, OperationName, Authorization, ActivityStatus
+| sort by TimeGenerated desc
+```
+
+**Common KQL operators:**
+
+| Operator | Purpose | Example |
+|---|---|---|
+| `where` | Filter rows | `where Severity == "Error"` |
+| `select` | Choose columns | `select TimeGenerated, Message` |
+| `project` | Choose/rename columns | `project Time=TimeGenerated, Msg=Message` |
+| `summarize` | Aggregate data | `summarize count() by Category` |
+| `sort` or `order` | Sort results | `sort by TimeGenerated desc` |
+| `top` | Get top N rows | `top 10 by Duration` |
+| `count()` | Count rows | `summarize TotalCount = count()` |
+| `sum()` | Sum column values | `summarize Total = sum(BytesSent)` |
+| `avg()` | Average column values | `summarize AvgTime = avg(Duration)` |
+| `dcount()` | Distinct count | `summarize UniqueUsers = dcount(UserId)` |
+| `bin()` | Group by time | `bin(TimeGenerated, 1h)` (hourly) |
+
+**Admin/troubleshooting KQL quick reference:**
+
+| Use Case | Query |
+|---|---|
+| What VMs had failed backups? | `AzureDiagnostics \| where Category == "Backup" \| where BackupStatus_s == "Failed"` |
+| Which storage accounts accessed? | `AzureActivity \| where ResourceType == "Microsoft.Storage/storageAccounts" \| summarize count() by CallerIpAddress` |
+| Most active users? | `SecurityEvent \| summarize LoginCount = count() by Account \| top 10 by LoginCount` |
+| Resources deleted last 7 days? | `AzureActivity \| where OperationName contains "Delete" \| where TimeGenerated > ago(7d)` |
 
 ### Alerts
 

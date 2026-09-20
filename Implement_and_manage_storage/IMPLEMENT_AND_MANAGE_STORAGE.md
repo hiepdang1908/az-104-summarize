@@ -993,6 +993,98 @@ Result: Async copy of all blob changes
 
 ---
 
+## Managing Data with AzCopy and Storage Explorer
+
+### Azure Storage Explorer
+
+**What it is:** GUI tool for managing Azure Storage
+
+**Access:** Download from Microsoft (free)
+
+**Capabilities:**
+
+- Upload/download blobs
+- Manage containers
+- Copy between accounts/regions
+- Edit metadata
+- Share via SAS token
+
+**Use case:** One-time uploads, small file management, visual organization
+
+### AzCopy
+
+**What it is:** Command-line utility for high-performance data transfer
+
+**Installation:** `azcopy` command-line tool
+
+**Key advantages:**
+
+- Bulk transfers
+- Resumable operations
+- Parallel uploads
+- Scriptable/automatable
+- Cross-account/region copies
+- Performance optimized
+
+**Common scenarios:**
+
+```text
+Upload local files to Blob Storage:
+$ azcopy copy "C:\LocalFolder\*" "https://myaccount.blob.core.windows.net/container" --recursive
+
+Download from Blob Storage:
+$ azcopy copy "https://myaccount.blob.core.windows.net/container/file.txt" "C:\Downloads\"
+
+Copy between storage accounts:
+$ azcopy copy "https://source.blob.core.windows.net/container/*" "https://dest.blob.core.windows.net/container/" --recursive
+
+Copy with SAS token (for authentication):
+$ azcopy copy "C:\data\*" "https://account.blob.core.windows.net/container?<SAS-token>" --recursive
+```
+
+**Authentication options:**
+
+- Managed Identity (in Azure VMs/App Service)
+- Service Principal
+- User credentials (interactive prompt)
+- SAS token
+- Storage account key
+
+**Performance tips:**
+
+```text
+✓ Use recursive flag for folders
+✓ Run from Azure VM for speed (bandwidth)
+✓ Parallelization automatic
+✓ Can resume interrupted transfers
+✓ Compress large files before transfer
+```
+
+### Comparison: Storage Explorer vs. AzCopy
+
+| Aspect | Storage Explorer | AzCopy |
+|---|---|---|
+| **Interface** | GUI | Command-line |
+| **Use case** | One-off, small transfers | Bulk, automated transfers |
+| **Performance** | Good for manual use | Optimized for large-scale |
+| **Scriptable** | No | Yes |
+| **Learning curve** | Easy | Moderate |
+| **Best for** | Testing, browsing | Production, automation |
+
+**Real scenario:**
+
+```text
+Weekly backup of on-premises data to Azure:
+    ↓
+Use AzCopy in scheduled script
+    ↓
+Bulk upload every Sunday at 2 AM
+    ↓
+Result: Automated, efficient, resumable
+```
+
+---
+
 ## Don't Confuse
 
 ### Blob Storage vs. Azure Files

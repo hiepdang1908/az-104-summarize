@@ -10,6 +10,10 @@
 - Added Uniform and Flexible Virtual Machine Scale Set orchestration distinctions.
 - Validated App Service backup tier support, deployment-slot behavior, and certificate constraints.
 - Corrected Blob Private Link DNS guidance to use `privatelink.blob.core.windows.net`.
+- Regenerated the objective map at `82 COMPLETE / 0 PARTIAL / 0 MISSING` and marked the earlier `0/82 COMPLETE` baseline obsolete.
+- Corrected Azure Policy versus resource-lock wording, LRS versus ZRS behavior, and Storage account key data-plane boundaries.
+- Clarified App Service Private Endpoint, custom-domain validation, private DNS, and TLS-binding flow.
+- Simplified third-party notices to distinguish original MIT-licensed material from Microsoft-owned documentation and trademarks.
 - Repaired invalid KQL pseudo-comments and removed SQL-style `select` guidance.
 - Strengthened Azure Monitor Insights, alert processing rules, virtual network flow logs, Backup monitoring, and restore-option coverage.
 - Removed stale completion metrics and unsupported technical assurances.

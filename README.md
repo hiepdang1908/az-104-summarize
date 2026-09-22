@@ -49,6 +49,16 @@ The repository maps all **82** objective bullets in the April 17, 2026 study gui
 - Fixed prices, quotas, and SLA percentages are avoided unless a current official source makes them essential.
 - Changes should be small, source-backed, AZ-104 relevant, and recorded in [CHANGELOG.md](CHANGELOG.md).
 
+## Core Governance Distinction
+
+| Feature | Controls | Does not replace |
+|---|---|---|
+| **Azure RBAC** | Who can perform which Azure action at which scope | Azure Policy or data-plane authorization |
+| **Azure Policy** | Whether resource configurations are allowed, audited, or remediated | RBAC permissions or a lock |
+| **Resource lock** | Azure Resource Manager deletion or modification of the locked resource | Data-plane protection, RBAC, or Policy |
+
+A `CanNotDelete` lock prevents Azure Resource Manager deletion; a `ReadOnly` lock also prevents Azure Resource Manager modifications. A principal with sufficient lock permissions can remove a lock. Locks do not prevent storage data operations such as deleting a blob with a valid data-plane credential.
+
 ## Repository Structure
 
 ```text

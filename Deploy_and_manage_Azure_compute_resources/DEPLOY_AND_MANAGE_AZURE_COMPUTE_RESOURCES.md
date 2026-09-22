@@ -839,10 +839,10 @@ Private Endpoint in VNet
     ↓ (private IP)
 App Service
     ↓
-Clients access app via private IP only
-    ↓
-No public internet access
+Clients can access the app through the private endpoint
 ```
+
+**Public access:** A private endpoint is inbound access only. Public access can coexist with it; disable public network access separately when private-only access is required. VNet Integration is still the separate outbound feature and cannot use the same subnet as the private endpoint.
 
 **Key distinction:**
 
@@ -868,7 +868,21 @@ Default domain: contoso-app.azurewebsites.net
 Anyone can access this URL (no custom domain)
 ```
 
-**Custom domain setup:**
+**Custom domain and private endpoint flow:**
+
+```text
+1. Add and validate the custom domain in App Service using public DNS validation.
+2. Create the TLS binding after the custom domain is validated.
+3. For private clients, make the custom DNS name resolve to the private endpoint:
+    - Preferred: private CNAME → <app-name>.azurewebsites.net
+    - Private-only custom zone: A record → private endpoint IP
+4. Link the private DNS zone privatelink.azurewebsites.net to the client VNet
+    so <app-name>.azurewebsites.net resolves through Private Link.
+```
+
+Private DNS does not replace the public DNS validation required to add a custom domain. The TLS certificate must match the custom hostname, whether clients reach it privately or publicly.
+
+**Custom domain setup without private endpoint:**
 
 ```text
 Goal: Access app via myapp.contoso.com (owned domain)
@@ -929,10 +943,10 @@ With cert: HTTPS (encrypted, browser shows green lock)
 
 | Source | Cost | Setup Time | Auto-renewal |
 |---|---|---|---|
-| **App Service Managed Certificate** | Free | Automatic | Yes |
-| **Azure Key Vault certificate** | You pay | Manual | Manual |
-| **Purchased certificate** | $10-100/yr | Manual upload | Manual |
-| **Self-signed** | Free | Automatic | Manual |
+| **App Service Managed Certificate** | App Service manages issuance and renewal | Suitable for supported custom domains |
+| **Azure Key Vault certificate** | Import and synchronize from Key Vault | Centralized certificate management |
+| **Uploaded private certificate** | Upload a supported password-protected PFX | Existing certificate from a trusted CA |
+| **Self-signed certificate** | Create and manage yourself | Testing, not public browser trust |
 
 **Certificate prerequisites:** A TLS binding for a custom domain requires an App Service plan in Basic, Standard, Premium, or Isolated. The free App Service managed certificate also requires the domain to be mapped to the app. It does not support wildcard names, private DNS, export, or App Service Environment. A root-domain managed certificate requires the app to remain publicly reachable for certificate issuance and renewal.
 

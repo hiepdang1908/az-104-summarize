@@ -226,8 +226,11 @@ Table: Employees
 ### Rule of Thumb
 
 ```text
-LRS / ZRS
-→ Zone focus (resilient to zone failure)
+LRS
+→ Copies in one physical datacenter; protects hardware failures, not datacenter failure
+
+ZRS
+→ Synchronous copies across three or more availability zones in one region
 
 GRS / GZRS / RA-GRS / RA-GZRS
 → Region focus (resilient to region failure)
@@ -235,10 +238,10 @@ GRS / GZRS / RA-GRS / RA-GZRS
 
 ### LRS (Locally Redundant Storage)
 
-**What it does:** 3 copies within one availability zone
+**What it does:** Replicates data within a single physical datacenter in the primary region. Azure does not let you select an availability zone for LRS.
 
 ```text
-One Datacenter (Availability Zone)
+One Physical Datacenter
 ├── Copy 1
 ├── Copy 2
 └── Copy 3
@@ -360,8 +363,8 @@ Secondary Region (West US)
 
 | Type | Zones Protected | Regions Protected | Secondary Readable | Cost |
 |---|---|---|---|---|
-| LRS | Same zone | N/A | N/A | $ |
-| ZRS | ✅ Same region | N/A | N/A | $$ |
+| LRS | No: one physical datacenter | N/A | N/A | $ |
+| ZRS | Yes: three or more zones in primary region | N/A | N/A | $$ |
 | GRS | ❌ (LRS primary) | ✅ | Only via failover | $$$ |
 | RA-GRS | ❌ (LRS primary) | ✅ | ✅ Without failover | $$$ |
 | GZRS | ✅ | ✅ | Only via failover | $$$$ |
@@ -375,7 +378,7 @@ Secondary Region (West US)
 
 ### Account Key (Primary/Secondary)
 
-**What it is:** 88-character key granting full access
+**What it is:** One of two storage account access keys used for Shared Key authorization.
 
 ```text
 Primary Key: DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=abcd1234...;EndpointSuffix=core.windows.net
@@ -383,10 +386,9 @@ Primary Key: DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=abc
 
 **Access:**
 
-- ✅ Read all data
-- ✅ Write all data
-- ✅ Delete all data
-- ✅ Sign supported storage **data-plane** requests by using Shared Key authentication
+- ✅ Authorize supported storage **data-plane** requests for the account's services
+- ✅ Read, write, and delete data when the requested operation is allowed by the storage service
+- ✅ Generate account SAS and service SAS tokens signed with that key
 
 **Risk:** If key is exposed, the holder has broad data-plane access for the storage services supported by that key. Treat it as a high-value secret and rotate it safely.
 
@@ -408,7 +410,7 @@ An account key does not itself grant Azure Resource Manager permission such as `
 4. Optionally repeat the process to return applications to the primary key.
 ```
 
-**When to use:** Server-to-server communication, trusted applications only
+**When to use:** Use only where Shared Key is required. Prefer Microsoft Entra ID, managed identities, or a user delegation SAS where supported; Shared Key can be disabled at account level when it is not needed.
 
 ### Shared Access Signature (SAS)
 
@@ -1223,8 +1225,8 @@ Result:
 | **Account key** | Full access credential | Trusted server | SAS | High security risk |
 | **SAS token** | Time-limited credential | Temporary external access | Account key | Controlled permissions |
 | **Managed Identity** | Workload authentication | App needing storage access | SAS | No credentials to store |
-| **LRS** | Local redundancy | Cost-sensitive | ZRS | Single zone |
-| **ZRS** | Zone redundancy | Zone resilience needed | LRS | Three zones, one region |
+| **LRS** | One-datacenter redundancy | Cost-sensitive, reconstructible data | ZRS | Not availability-zone resilience |
+| **ZRS** | Zone redundancy | Zone resilience needed | LRS | Three or more zones in one region |
 | **GRS** | Region redundancy | Disaster recovery | GZRS | Secondary read-only |
 | **RA-GRS** | Region + read secondary | DR + read failover | GRS | Secondary readable |
 | **GZRS** | Zone + region redundancy | High availability | GRS | Three zones + regions |
@@ -1246,8 +1248,8 @@ Result:
 - Table = key-value
 
 **Redundancy:**
-- LRS = local copy
-- ZRS = zone copies
+- LRS = copies in one physical datacenter
+- ZRS = synchronous copies across availability zones
 - GRS = region copy (secondary read-only)
 - RA-GRS = region + secondary read
 - GZRS = zone + region (zones + regions)
@@ -1274,7 +1276,7 @@ Result:
 
 **Key Distinctions:**
 - Blob vs. Files = HTTP vs. SMB/NFS mount
-- LRS vs. ZRS = single zone vs. three zones
+- LRS vs. ZRS = one datacenter vs. multiple availability zones
 - GRS vs. RA-GRS = secondary not readable vs. readable
 - Soft Delete vs. Versioning = deleted vs. overwritten
 - Service Endpoint vs. Private Endpoint = public endpoint vs. private IP

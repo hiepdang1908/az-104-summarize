@@ -85,7 +85,7 @@ VNet: 10.0.0.0/16
 - **CIDR notation:** 10.0.0.0/16 = 65,536 IP addresses
 - **Region-bound:** VNet in one region (but can peer across regions)
 - **Subscription-bound:** VNet in one subscription (but can peer across subscriptions)
-- **Overlap:** Cannot have duplicate address spaces (unless separate subscriptions)
+- **Overlap:** Address spaces can overlap in isolated VNets, but peering, VPN, and other connected-network designs generally require non-overlapping ranges. Plan CIDR ranges before connecting networks.
 
 ### Subnets
 
@@ -115,11 +115,12 @@ Subnet: 10.0.1.0/24
 ├── 10.0.1.0: Network address (reserved)
 ├── 10.0.1.1: Gateway (reserved)
 ├── 10.0.1.2: DNS resolver (reserved)
-├── 10.0.1.3: First available for resources
+├── 10.0.1.3: Reserved by Azure
+├── 10.0.1.4: First available for resources
 │   ...
 └── 10.0.1.255: Broadcast address (reserved)
 
-Usable IPs: 10.0.1.3 to 10.0.1.254 (252 IPs)
+Usable IPs: 10.0.1.4 to 10.0.1.254 (251 IPs). Azure reserves the first four and last address in every subnet.
 ```
 
 ---
@@ -132,8 +133,8 @@ Usable IPs: 10.0.1.3 to 10.0.1.254 (252 IPs)
 
 | Type | Cost | Use Case |
 |---|---|---|
-| **Dynamic** | Free | Temporary, okay if changes |
-| **Static** | $ | DNS records, SSL certificates need stable IP |
+| **Dynamic** | Pricing depends on SKU, region, and association state | Temporary, okay if changes |
+| **Static** | Pricing depends on SKU, region, and association state | Stable allowlists and DNS mappings |
 
 **Scopes:**
 
@@ -179,7 +180,7 @@ Result: VMs in A can talk to VMs in B directly
 ```text
 VNet-A (East US) ← Peering → VNet-B (East US)
     ↓
-Free peering
+Regional peering; check current data-transfer pricing
 ```
 
 **Global Peering:**
@@ -340,7 +341,7 @@ Packet destination: 192.168.1.5
 Route table lookup
     ├── Does 192.168.1.5 match any route?
     ├── If yes: Send to next hop specified
-    └── If no: Discard (drop)
+    └── If no: Use the best matching system route (often the default route)
 ```
 
 ### System Routes (Automatic)
@@ -405,9 +406,7 @@ Result: All traffic forced through firewall for inspection
 NSG rule: Deny port 23 (Telnet)
 Route: Send 192.168.0.0/16 to firewall
     ↓
-Result: NSG denies telnet even if route tried to send it
-    ↓
-NSG is evaluated first (filtering), then routing
+Result: The route determines the path and the NSG independently determines whether the flow is allowed. Do not use an NSG to choose a next hop or a UDR to filter a port.
 ```
 
 ---
@@ -524,7 +523,7 @@ Result: Private IP assigned (e.g., 10.0.3.5)
 **Step 2: Create private DNS zone**
 
 ```text
-Private DNS Zone: blob.core.windows.net
+Private DNS Zone: privatelink.blob.core.windows.net
     ↓
 Zone Resolution:
 ├── blob.core.windows.net → 10.0.3.5 (private IP)
@@ -549,7 +548,7 @@ Access: Granted
 
 - **Private IP** — Service gets private IP in your VNet
 - **Private DNS** — Usually requires Private DNS Zone for name resolution
-- **Cost** — Charged per endpoint (~$0.01/hour)
+- **Cost** — Private Link pricing varies by region and data processed; check current pricing
 - **Complex** — Requires Private DNS setup
 - **Strict isolation** — Complete private network isolation
 
@@ -560,7 +559,7 @@ Access: Granted
 | **IP type** | Service's public IP | Private IP in VNet |
 | **DNS** | resolves to public IP | Requires Private DNS Zone |
 | **Network** | Public endpoint, private routing | Complete private networking |
-| **Cost** | Free | Paid (~$0.01/hour) |
+| **Cost** | No separate service-endpoint charge | Private Link pricing varies by region and data processed |
 | **Setup** | Simple | Complex |
 | **Use case** | VNet isolation sufficient | Strict private access required |
 | **On-premises access** | Via ExpressRoute | Via ExpressRoute/VPN + Private DNS |
@@ -765,8 +764,7 @@ Traffic distribution:
 ```text
 Health Probe:
 ├── Protocol: TCP, HTTP, HTTPS
-├── Interval: 15 seconds
-├── Threshold: 2 failed checks = unhealthy
+├── Interval and threshold: Configured for the load-balancing rule
     ↓
 Example: HTTP probe on port 80, path /health
     ↓
@@ -932,7 +930,7 @@ Azure Monitor
 | **Example** | CPU: 75%, Memory: 4096MB | User logged in at 14:30:00, IP 192.168.1.5 |
 | **Storage** | Time-series database | Log Analytics |
 | **Query** | Chart, alert threshold | KQL (Kusto Query Language) |
-| **Retention** | 30 days default | Configurable (30 days to 2 years) |
+| **Retention** | Platform-metric and log retention policies differ | Configurable by workspace, table, and retention tier; verify the current policy |
 | **Cost** | Per metric | Per GB ingested |
 | **Use case** | Real-time trends | Detailed investigation |
 
@@ -985,7 +983,7 @@ Tables:
 ```kusto
 TableName
 | where Condition (filter)
-| select Columns (choose columns)
+| project Columns (choose or rename columns)
 | summarize Aggregation (count, sum, avg)
 | sort by Column desc
 ```
@@ -1136,10 +1134,10 @@ Log Analytics Workspace: central-logs
 **Agents:**
 
 ```text
-Log Analytics Agent (OMS agent):
-    ├── Send logs to Log Analytics
-    ├── Configure data collection
-    └── Push metrics
+Azure Monitor Agent (AMA):
+    ├── Collect guest data through data collection rules
+    ├── Send supported data to Log Analytics or Azure Monitor
+    └── Replaces the legacy Log Analytics agent for new designs
 
 Application Insights Agent:
     ├── Monitor application performance
@@ -1218,7 +1216,7 @@ Diagnostics tool for network troubleshooting
 Network Watcher
 ├── Connection Monitor: Can A reach B?
 ├── IP Flow Verify: Why is traffic blocked?
-├── NSG Flow Logs: See all traffic
+├── Virtual network flow logs: Record network flows for new designs
 ├── Packet Capture: Detailed packet analysis
 └── VPN Troubleshoot: VPN connection issues
 ```
@@ -1303,11 +1301,10 @@ Need to restore: Get backup from specific date/time
 
 | Aspect | Recovery Services Vault | Backup Vault |
 |---|---|---|
-| **Purpose** | Traditional backup + Site Recovery | Block-level backup |
-| **Backup types** | VM, File, SQL, MARS agent | Disk, Blob, Database |
-| **Supports** | Longer retention | Faster backup/restore |
+| **Purpose** | Backup and Site Recovery vault for established workloads | Backup vault for supported newer Azure Backup workloads |
+| **Typical workloads** | Azure VMs, Azure Files, SQL Server in Azure VM, MARS, and Site Recovery | Azure Blobs, Azure Disks, Azure Database for PostgreSQL, and other supported V2 workloads |
 | **Site Recovery** | Yes | No |
-| **Geo-redundancy** | GRS available | GRS available |
+| **Selection rule** | Choose when the protected workload or Site Recovery requires it | Choose only when the workload is supported by Backup vault |
 
 **Typical choice:**
 
@@ -1382,8 +1379,8 @@ Change in primary VM
 Automatically replicated to secondary
     ↓
 RPO (Recovery Point Objective): How much data can be lost?
-├── ≤ 5 minutes (standard replication)
-├── ≤ 30 seconds (Premium SSD)
+├── Determined by the source, target, workload, replication configuration, and current service capability
+├── Validate the achievable RPO rather than assuming a fixed interval
 ```
 
 **Failover:**
@@ -1457,9 +1454,9 @@ Business requirement:
 ├── Must be back within 4 hours (RTO ≤ 4 hours)
 
 Solution:
-├── Site Recovery: Continuous replication (RPO ≤ 5 min)
-├── Automated failover: Achieves RTO within 30 min
-└── Exceeds requirements (backup already included)
+├── Design Site Recovery replication and the recovery plan to meet the stated targets
+├── Test failover to measure the realistic RTO
+└── Use backup separately when point-in-time recovery and retention are required
 ```
 
 ### Backup vs. Site Recovery

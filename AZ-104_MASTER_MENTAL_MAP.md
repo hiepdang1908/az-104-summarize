@@ -393,7 +393,7 @@ Resource
 
 | Object | Scope | Inherits? | Cross-Subscription? |
 |---|---|---|---|
-| **Role Assignment** | MG/Sub/RG/Resource | Yes (down) | No (same sub only) |
+| **Role Assignment** | MG/Sub/RG/Resource | Yes (down) | An assignment at a management group can apply to descendant subscriptions |
 | **Azure Policy** | MG/Sub/RG | Yes (down) | Yes (MG can enforce across subs) |
 | **Resource Lock** | RG/Resource | No (only that level) | No |
 | **Tag** | Resource/RG | No (must tag each) | No |
@@ -401,7 +401,7 @@ Resource
 | **VNet Peering** | Subscription | No | Yes (can peer across subs) |
 | **Subnet NSG** | Subnet (within VNet) | No | No |
 | **Management Group** | Global | N/A | Yes (contains subs) |
-| **Private Endpoint** | Resource Group | No | No (in same RG as resource) |
+| **Private Endpoint** | Resource Group | No | The private endpoint and target resource can be in different resource groups; the endpoint is created in a subnet |
 | **Load Balancer** | Resource Group | No | Can route across availability zones |
 
 ## Storage Decision Tree

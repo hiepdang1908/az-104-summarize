@@ -274,7 +274,7 @@ Enable encryption for storage account:
 
 **6. Remove a resource:**
 
-Delete the entire resource object from the `resources` array.
+Removing a resource from a template does **not** delete an already deployed resource when the deployment uses the normal incremental mode. Use a deliberate deletion process, or complete mode only after understanding its scope and risk.
 
 **7. Convert parameter to variable:**
 
@@ -466,9 +466,7 @@ Azure updates one update domain at a time
 VMs in other update domains stay running during maintenance
 ```
 
-**Important:** All VMs in set must be same size (for balance)
-
-**SLA:** 99.95% (with 2+ VMs)
+**Important:** Place two or more VMs in the availability set to distribute them across fault and update domains. VM sizes and current SLA eligibility depend on the deployed configuration; verify the current SLA rather than treating one percentage as universal.
 
 **Cost:** Only pay for VMs (availability set itself is free)
 
@@ -504,7 +502,7 @@ Availability Set: Logical grouping, same datacenter
 Availability Zone: Physical separation, different datacenters (same region)
 ```
 
-**SLA:** 99.99% (with 3+ VMs across zones)
+**Availability decision:** Availability Zones provide physical separation within one region. SLA eligibility depends on the current service SLA and the exact deployment, so validate the applicable SKU and architecture.
 
 **Cost:** Potential outbound data transfer costs between zones
 
@@ -558,7 +556,7 @@ Web application with variable traffic
 └── Evening: 2 instances (low traffic)
 ```
 
-**SLA:** 99.95% (with multiple zones) or 99.99% (with 3+ zones)
+**Availability decision:** A scale set can use availability zones, but availability and SLA depend on the configured orchestration, instance count, zones, and application design.
 
 ### Availability Decision Tree
 
@@ -616,7 +614,7 @@ Container runs (serverless, no VM management)
 **Characteristics:**
 
 - **Serverless** — No VM to manage
-- **Instant scaling** — Fast startup
+- **On-demand execution** — Run a container group without managing VMs; create a new group when more independent capacity is required
 - **Isolated** — Each container in separate environment
 - **Per-second billing** — Minimal cost
 
@@ -671,26 +669,10 @@ AKS: Complex orchestration, large scale
 **Azure Container Instances (ACI) sizing:**
 
 ```text
-CPU: 1, 1.5, 2, 4, 8, 16, 32 cores
-Memory: 1 GB - 128 GB (varies by CPU)
-
-Example: 2 vCPU + 8 GB RAM
-    ├── Cost: ~$0.0015 per second
-    └── Monthly: ~$38 for always-on
+CPU and memory combinations, quotas, regions, and pricing vary. Choose a supported combination based on measured application need, then verify the current regional limits and pricing.
 ```
 
-**Container CPU request vs. limit:**
-
-```text
-Request: Minimum CPU guaranteed
-Limit: Maximum CPU allowed
-
-Example:
-├── CPU Request: 0.5 cores (guaranteed)
-├── CPU Limit: 1.0 cores (max usable)
-    ↓
-If container exceeds 1.0 cores: Throttled
-```
+**Sizing rule:** Azure Container Instances uses CPU and memory requested for the container group. Container Apps has its own supported replica resources and scaling model; do not apply Kubernetes request/limit semantics unless you are specifically working in AKS.
 
 **Memory sizing strategy:**
 
@@ -712,18 +694,7 @@ Set as container memory request
 **Automatic scaling rules:**
 
 ```text
-Scaling factor: CPU percentage
-    ├── If avg CPU > 80% for 1 minute: Add instance
-    ├── If avg CPU < 20% for 5 minutes: Remove instance
-    └── Min/Max instances: Set limits (e.g., 1-10)
-
-Scaling factor: Memory percentage
-    ├── If avg memory > 80%: Add instance
-    └── If avg memory < 20%: Remove instance
-
-Scaling factor: HTTP requests (custom)
-    ├── If requests/sec > 100: Add instance
-    └── If requests/sec < 10: Remove instance
+Scale rules can use HTTP concurrency, event-driven signals, or custom/KEDA-supported scalers. Configure minimum and maximum replicas, then choose a scaler that represents demand; do not assume fixed CPU or memory thresholds apply to every app.
 ```
 
 **Scale-to-zero:**
@@ -735,7 +706,7 @@ When no traffic: Scale down to 0 instances
     ↓
 Cost: $0 (except storage)
     ↓
-Tradeoff: Cold start (100-500ms on new request)
+Tradeoff: A cold start can add latency on the first request; the duration depends on the image, workload profile, and initialization work.
     ↓
 When traffic returns: Scale back up automatically
 ```
@@ -782,7 +753,7 @@ When deployed:
 | **Shared** | $ | Shared resources, 1 GB RAM | 1 instance |
 | **Basic** | $$ | Dedicated, 1.75 GB - 7 GB RAM | Up to 3 instances |
 | **Standard** | $$$ | Dedicated, slots, scaling | Up to 10 instances |
-| **Premium** | $$$$ | Dedicated, App Service Environment | Up to 20 instances |
+| **Premium** | $$$$ | Higher-capacity dedicated plan features | Verify current tier limits |
 
 **Key concept:**
 
@@ -1158,7 +1129,7 @@ Out/In = Machine count (horizontal)
 
 **Does NOT protect:**
 
-- Active VM memory (RAM) — use Azure Disk Encryption or Confidential VMs for full memory encryption
+- Active VM memory (RAM) — use a Confidential VM when protection of memory in use is a requirement; Azure Disk Encryption encrypts disks, not active memory
 
 **Trade-off:**
 
@@ -1198,7 +1169,7 @@ Requirements:
 
 ### Move Between Subscriptions
 
-**Same requirements, different subscription**
+**Cross-subscription moves are supported only for supported resource types and compatible source and destination subscriptions.** Validate every dependent resource with the current move-support matrix before treating a move as an option.
 
 ```text
 VM in: Subscription A, rg-prod
@@ -1210,14 +1181,7 @@ Azure moves: VM, disks, NICs, etc.
 
 ### Move to Different Region
 
-**Constraints:**
-
-```text
-Region move requires:
-├── Image available in target region
-├── Quota in target region
-├── Managed disk replication possible
-```
+**Different-region move:** A resource move is not the normal mechanism for changing a VM's region. Use an appropriate migration or replication approach, such as Azure Resource Mover, Azure Site Recovery, or rebuild from an image, based on the workload and downtime requirement.
 
 ---
 
@@ -1336,7 +1300,7 @@ Result:
 | **Deployment Slots** | Staging environment | Blue-green deploy | Backup | Zero-downtime swap |
 | **Scale Up** | Bigger machine | More power | Scale Out | Downtime |
 | **Scale Out** | More machines | More capacity | Scale Up | No downtime |
-| **Encryption at Host** | Encrypt VM memory | Full-disk requirement | Storage encryption | ~3-5% overhead |
+| **Encryption at Host** | Encrypt temporary disk and host caches | Disk encryption | Does not encrypt active VM memory | Configuration and support vary by VM |
 
 ---
 

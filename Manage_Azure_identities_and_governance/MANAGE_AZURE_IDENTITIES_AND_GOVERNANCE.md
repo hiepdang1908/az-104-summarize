@@ -86,7 +86,7 @@ It is:
 
 **Groups:**
 
-- **Security groups** — Used to assign permissions (RBAC, NSG, etc.)
+- **Security groups** — Used to assign directory and Azure RBAC permissions. They are not Application Security Groups (ASGs), which group NICs for NSG rules.
 - **Microsoft 365 groups** — Used for collaboration (teams, shared mailboxes)
 
 ### User Properties
@@ -122,11 +122,11 @@ Result: All group members automatically have Contributor access.
 
 Allows users to reset their own password without calling help desk.
 
-**Requirements to enable:**
+**Configuration decisions:**
 
-- Entra ID Premium P1 or higher (or Microsoft 365 apps license)
-- Users must register phone or alternate email in advance
-- Admin configures SSPR policy
+- Select the users or groups in scope; do not assume every tenant user is enabled.
+- Choose the authentication methods users must register and the number required to reset.
+- Confirm the tenant's current Microsoft Entra licensing and feature entitlement in Microsoft documentation before enabling a production policy.
 
 **Scope:**
 
@@ -287,7 +287,7 @@ Result: Alice is Contributor in ALL resource groups in that subscription
 Result: Alice is Contributor for ALL resources in ALL RGs
 ```
 
-**Override rule:** You can deny access at a lower scope to override higher scope access.
+**Exam trap:** A normal lower-scope role assignment does not subtract permissions inherited from a higher scope. Azure RBAC deny assignments are exceptional system-managed controls, not the usual way to design least privilege. Grant the narrowest role at the narrowest scope instead.
 
 ---
 
@@ -298,7 +298,7 @@ Result: Alice is Contributor for ALL resources in ALL RGs
 A subscription is:
 
 - **Billing boundary** — All costs roll up to one subscription
-- **Resource limit** — Quotas (e.g., 20 VMs per subscription by default, but can increase)
+- **Resource limit boundary** — Quotas are evaluated by resource type, region, SKU, and subscription. Check current quota and availability rather than memorizing a universal VM count.
 - **Trust boundary** — Resources in one subscription are isolated from others
 - **Scale unit** — One "container" for managing resources
 
@@ -468,12 +468,12 @@ Azure Policy is:
 **Policy definition:**
 
 ```text
-Rule: All VMs must have encryption at rest enabled
+Rule: Required resources must have an approved configuration
 
 Definition includes:
-- What resource type? (Microsoft.Compute/virtualMachines)
-- What parameter? (encryptionAtRestEnabled)
-- What condition? (== true)
+- What resource type does the definition target?
+- Which documented alias or property is evaluated?
+- What compliant and noncompliant values are permitted?
 ```
 
 **Policy assignment:**
@@ -490,6 +490,8 @@ Effect: Deny (block creation if not compliant)
 - **Deny** — Block resource creation if non-compliant
 - **Modify** — Automatically change properties to comply
 - **DeployIfNotExists** — Automatically add missing configuration
+
+**Choose the effect:** Use `Audit` to discover impact before enforcement, `Deny` when a configuration must never be created, and `Modify` or `DeployIfNotExists` only when the definition supports remediation and the assignment identity has the required permissions. An initiative groups related definitions; an exemption documents an approved exception at an allowed scope.
 
 ### Policy vs. RBAC
 
@@ -553,6 +555,8 @@ Result: Cannot modify (even read-only name can be changed by reading it)
 ```
 
 ### When to Use Locks
+
+> **Control-plane boundary:** Locks protect Azure Resource Manager operations. They do not block data-plane operations such as reading a blob with a valid data credential. Use data-plane authorization and service-level protection for the data itself.
 
 ```text
 Scenario: Production database account

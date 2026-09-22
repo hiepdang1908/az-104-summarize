@@ -80,7 +80,7 @@ A storage account is:
 - **Account name** — must be globally unique (3-24 alphanumeric characters)
 - **DNS name** — storageaccountname.blob.core.windows.net
 - **Account key** — primary and secondary keys (each 88 characters)
-- **Access tier** — Hot (frequently accessed), Cool (infrequent), or Archive (rarely accessed)
+- **Default online access tier** — Hot, Cool, or Cold for new eligible block blobs. Archive is set per eligible blob; it is not an account default tier.
 - **Redundancy** — LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS
 
 ### Storage Account SKUs
@@ -120,10 +120,10 @@ Reference by: https://storageaccount.blob.core.windows.net/container/blob-name
 
 **Redundancy options:**
 
-- **Hot tier** — Immediately accessible, highest cost
-- **Cool tier** — Delayed access (30 days minimum), lower cost
-- **Archive tier** — Longest delay (90 days minimum), lowest cost
-- **Rehydrate** — Upgrade cold/archive to hot when needed
+- **Hot tier** — Online and immediately accessible; highest storage cost and lowest access cost
+- **Cool tier** — Online and immediately accessible; lower storage cost, higher access cost, 30-day minimum duration for GPv2 accounts
+- **Cold tier** — Online and immediately accessible; lower storage cost and higher access cost than Cool, 90-day minimum duration for GPv2 accounts
+- **Archive tier** — Offline; rehydration is required before blob data can be read, and the minimum duration is 180 days
 
 ### Azure Files
 
@@ -188,9 +188,9 @@ Process order #123
 
 ```
 1. Producer adds message to queue
-2. Consumer reads message (message stays in queue, invisible for 30 seconds)
+2. Consumer receives message; it is temporarily invisible for the configured visibility timeout
 3. Consumer processes message
-4. Consumer deletes message (optional, automatic after timeout)
+4. Consumer explicitly deletes the message after successful processing; otherwise it becomes visible again when the timeout expires
 ```
 
 ### Table Storage
@@ -294,8 +294,8 @@ Secondary Region (e.g., West US)
 **Resilience:**
 
 - ✅ Survives disk failure
-- ✅ Survives zone failure
-- ✅ Survives region failure (primary region destroyed, secondary is still available)
+- ✅ Replicates asynchronously to a paired secondary region
+- ❌ The primary replica is LRS, so GRS alone does not provide zone redundancy in the primary region
 
 **Cost:** Higher than ZRS
 
@@ -362,8 +362,8 @@ Secondary Region (West US)
 |---|---|---|---|---|
 | LRS | Same zone | N/A | N/A | $ |
 | ZRS | ✅ Same region | N/A | N/A | $$ |
-| GRS | ✅ | ✅ | Only via failover | $$$ |
-| RA-GRS | ✅ | ✅ | ✅ Without failover | $$$ |
+| GRS | ❌ (LRS primary) | ✅ | Only via failover | $$$ |
+| RA-GRS | ❌ (LRS primary) | ✅ | ✅ Without failover | $$$ |
 | GZRS | ✅ | ✅ | Only via failover | $$$$ |
 | RA-GZRS | ✅ | ✅ | ✅ Without failover | $$$$ |
 
@@ -391,11 +391,10 @@ Primary Key: DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=abc
 **Rotation:**
 
 ```text
-1. Generate new secondary key
-2. Update applications to use secondary key
-3. Delete primary key
-4. Generate new primary key
-5. Rotate back to primary when ready
+1. Regenerate the **secondary** key while applications still use the primary key.
+2. Update and verify applications to use the new secondary key.
+3. Regenerate the primary key only after no application depends on it.
+4. Optionally repeat the process to return applications to the primary key.
 ```
 
 **When to use:** Server-to-server communication, trusted applications only
@@ -421,7 +420,7 @@ https://myaccount.blob.core.windows.net/container/blob?sv=2024-02-04&se=2024-12-
 |---|---|---|
 | **Account SAS** | Storage account owner | Full account delegation with limited permissions |
 | **Service SAS** | Storage account owner | Limited to one service (Blob, Queue, File, Table) |
-| **User delegation SAS** | Storage account owner (but uses Entra creds) | Supports Azure AD authorization |
+| **User delegation SAS** | A Microsoft Entra security principal authorized to request a user delegation key | Delegates Blob Storage access with Entra credentials |
 
 **Permissions:**
 
@@ -506,17 +505,7 @@ Data Plane (Storage roles):
 ├── "Storage Blob Data Reader" = can read blobs inside storage account
 ```
 
-**Two-layer access:**
-
-```text
-Step 1: Do you have RBAC permission to access the storage account?
-        → Need Storage Account Contributor or higher (control plane)
-
-Step 2: Do you have data plane role to read/write blobs?
-        → Need Storage Blob Data Reader or higher (data plane)
-
-Both layers required for access.
-```
+**Exam trap:** Control-plane roles manage the storage resource; data-plane roles authorize data operations. A workload that uses Microsoft Entra authentication to read a blob needs the appropriate data-plane role, not `Storage Account Contributor`. Portal navigation can separately require management-plane read access.
 
 ---
 
@@ -630,7 +619,7 @@ Connection via private network
 | **Network model** | Service still public endpoint | Service gets private IP |
 | **IP address** | Service's public IP | Private IP in your VNet |
 | **DNS** | resolves.blob.core.windows.net | Private DNS zone (custom) |
-| **Cost** | Free | Paid (~$0.01/hour per endpoint) |
+| **Cost** | No separate service-endpoint charge | Private Link pricing varies by region and data processed; check current pricing |
 | **Configuration complexity** | Simple (enable on VNet) | Complex (need private DNS) |
 | **Access from on-premises** | Via ExpressRoute | Via ExpressRoute/VPN + Private DNS |
 | **Use case** | Simple VNet-to-service access | Strict private network isolation |
@@ -674,16 +663,25 @@ Container: documents
 **Cool Tier:**
 
 - Cost: Lower storage, higher access cost
-- Access: 30+ seconds
+- Access: Online, milliseconds to first byte
 - Use: Infrequent access (at least once per 30 days)
 - Minimum billing: 30 days
+
+**Cold Tier:**
+
+- Cost: Lower storage and higher access cost than Cool
+- Access: Online, milliseconds to first byte
+- Use: Rarely accessed data that still needs immediate retrieval
+- Minimum billing: 90 days
 
 **Archive Tier:**
 
 - Cost: Lowest storage, highest access cost
 - Access: Hours (rehydration needed)
 - Use: Rarely accessed (kept for compliance/backup)
-- Minimum billing: 90 days
+- Minimum billing: 180 days
+
+**Constraint:** Archive is supported only with LRS, GRS, or RA-GRS. It is not supported with ZRS, GZRS, or RA-GZRS.
 
 **Selection example:**
 
@@ -804,11 +802,11 @@ THEN move to Archive tier
 IF blob age > 365 days
 THEN delete
 
-IF blob NOT accessed for 180 days
-THEN move to Archive
+IF blob has not been accessed for 180 days
+THEN move to Archive (requires last-access-time tracking to be enabled)
 ```
 
-**Automation:** Rules run daily at midnight UTC
+**Automation:** Lifecycle policies run asynchronously. Do not depend on an exact execution time for an individual blob.
 
 **Cost savings:** Automatic tiering without manual intervention
 
@@ -840,9 +838,9 @@ Linux VM:
 
 **Requirements:**
 
-- Storage account in Standard tier (not Premium)
-- Enable "Identity-based access for Azure file shares"
-- Azure RBAC role assignment for user/group
+- Configure a supported identity source and Azure Files authentication option for the account and protocol.
+- Assign an Azure Files data-plane role at the required scope.
+- Apply file and directory ACLs where the selected authentication method uses them.
 
 **Process:**
 

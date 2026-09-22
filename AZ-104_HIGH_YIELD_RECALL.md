@@ -71,7 +71,7 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Bigger machine? | Scale Up | Scale Out (more machines) |
 | More machines? | Scale Out | Scale Up (bigger machine) |
 | Encrypt temporary disk and caches? | Encryption at Host | Disk encryption (all layers) |
-| Move VM to different RG? | Requires same subscription | Cross-subscription move (complex) |
+| Move VM to different RG? | Validate dependent-resource move support | Cross-subscription move can be supported, but never assume it |
 
 ---
 
@@ -160,7 +160,7 @@ Answer: Database Admin (control plane) + Data Plane Viewer excluded
 | **Resource Group** | Resources | RG-level | Down to resources |
 | **Resource** | N/A | Resource-level | N/A |
 
-**Rule:** Lower scope can override higher scope (explicit deny wins).
+**Rule:** Role assignments inherit downward. Design least privilege at the narrowest scope; normal lower-scope assignments do not subtract an inherited grant.
 
 ---
 
@@ -257,7 +257,7 @@ When stuck on a scenario question:
 | Soft Delete vs. Versioning are same | False (deletion vs. overwrite) | Both recover data |
 | Service Endpoint = Private IP | False (public endpoint) | Sounds like private |
 | RA-GRS secondary always readable | True (without failover) | GRS secondary not readable |
-| NSG denies wins over allows | True (most restrictive) | Seems symmetric |
+| NSG deny always wins over allow | False | The first matching rule by priority wins; lower number is evaluated first |
 | Availability Set protects zone failure | False (one datacenter) | Availability Zone does |
 | Scale Up = Scale Out | False (size vs. count) | Both handle load |
 | Metric = Log | False (number vs. event) | Both monitoring |
@@ -325,7 +325,7 @@ When stuck on a scenario question:
 7. **Recovery ≠ Replication** — backup is point-in-time, Site Recovery is failover
 8. **Availability is zone-critical** — Set vs. Zone distinction very important
 9. **Scaling direction matters** — Up/Down is size, Out/In is count
-10. **Lock is absolute** — No exemptions, no RBAC override
+10. **Lock is control-plane protection** — Remove it only with the required lock permission; it does not block data-plane access
 
 ---
 

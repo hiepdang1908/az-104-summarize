@@ -90,26 +90,20 @@ Version 2 (planned separately) will address hands-on implementation and complete
 
 **AZ-104 blueprint:** Skills measured as of **April 17, 2026**.
 
-**Repository technical review:** September 20, 2026 (Final Audit COMPLETE).
+**Current audit baseline:** September 22, 2026.
 
-**Latest version:** 2.0 (Post-Final-Audit)
+**Blueprint representation:** 82/82 official objectives are mapped.
 
-**Coverage status:** ✅ 100% (All 65 official objectives fully covered)
+**Learning-completeness status:** In progress. Representation is not treated as complete teaching coverage; see [AZ-104_OBJECTIVE_MAP.md](AZ-104_OBJECTIVE_MAP.md).
 
-**Accuracy status:** ✅ 100% verified against Microsoft Learn
+**Accuracy status:** Claims are being corrected against current Microsoft Learn documentation. Do not rely on the legacy audit-completion reports as technical authority.
 
-**Publication status:** ✅ APPROVED FOR PUBLICATION
+### Audit Discipline
 
-### Review Completion Summary
-
-- ✅ Final technical audit (15-issue specification) completed
-- ✅ All identified technical issues resolved
-- ✅ 8 objectives elevated from "Supporting" to "Covered"
-- ✅ Coverage increased from 92.3% → 100% (60→65 objectives)
-- ✅ Cross-file consistency verified (no contradictions)
-- ✅ All content independently verified against April 2026 Microsoft documentation
-
-See [FINAL_AUDIT_COMPLETION_REPORT.md](FINAL_AUDIT_COMPLETION_REPORT.md) for detailed audit results.
+- The official study guide controls objective counts and scope.
+- Current Microsoft product documentation controls technical behavior.
+- A topic is marked COMPLETE only when it satisfies the criteria in the objective matrix.
+- Region, SKU, workload, and feature availability conditions are stated rather than hidden behind universal rules.
 
 ### Important Warnings
 
@@ -169,8 +163,7 @@ azure_104_summarize/
 │       └── PART III — Backup and Recovery
 │
 ├── sources/
-│   ├── official-sources.md
-│   └── source-conflicts.md
+│   └── official-sources.md
 │
 ├── LICENSE
 └── THIRD_PARTY_NOTICES.md
@@ -210,7 +203,7 @@ The [AZ-104_OBJECTIVE_MAP.md](AZ-104_OBJECTIVE_MAP.md) still represents all five
 - **Model, API, region, deployment, role, quota, and feature support must be verified before implementation.** Never assume stability of Preview features.
 - **Current Microsoft terms are preferred.** Older or legacy terms are labeled when relevant.
 - **Practice exams do not define Azure behavior.** If a practice exam answer conflicts with official Microsoft documentation, Microsoft documentation wins.
-- **Outdated terminology is tracked separately.** [sources/source-conflicts.md](sources/source-conflicts.md) records high-value older terms learners may still encounter and their current Microsoft replacements.
+- **Terminology and service behavior change.** Verify current Microsoft documentation before relying on older course material or fixed values.
 
 ## Common Exam Pitfalls
 

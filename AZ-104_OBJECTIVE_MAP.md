@@ -1,256 +1,126 @@
-# AZ-104 Objective Map
+# AZ-104 Objective Matrix
 
 ---
 
-**← [Previous: High-Yield Recall](AZ-104_HIGH_YIELD_RECALL.md)** | **[Home](README.md)**
+**[Home](README.md)** | **[High-Yield Recall](AZ-104_HIGH_YIELD_RECALL.md)**
 
 ---
 
-This file maps every official Microsoft AZ-104 objective to repository sections.
+This matrix follows the official **AZ-104: Microsoft Azure Administrator** skills measured as of **April 17, 2026**.
 
-**Blueprint date:** April 17, 2026
+## Assessment Standard
 
----
+An objective is **COMPLETE** only when its material teaches what it is, why it exists, how it works, when to use it, its nearest confusion, a material constraint or trap, and a scenario or decision application. A keyword is not coverage.
 
-## Coverage Legend
+- **COMPLETE**: meets every requirement above.
+- **PARTIAL**: represented, but has a material gap or inaccuracy.
+- **MISSING**: no meaningful treatment exists.
 
-- **Covered:** Fully explained in repository
-- **Supporting:** Related content in repository (partial)
-- **Out of V1 scope:** Not covered in Version 1
+This is the conservative audit baseline. It replaces the legacy, unsupported claim that all objectives were fully covered.
 
----
+| Domain | Objective | File / section | Coverage | Accuracy | Depth | Scenario readiness | Action |
+|---|---|---|---|---|---|---|---|
+| Identity | Create users and groups | [Identity guide](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#users-and-groups) | PARTIAL | Needs correction | Moderate | Weak | Separate Entra groups from ASGs; add a selection scenario. |
+| Identity | Manage user and group properties | [Identity guide](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#user-properties) | PARTIAL | Verified | Moderate | Weak | Add property and membership boundaries. |
+| Identity | Manage licenses in Entra ID | Identity guide / User Properties | PARTIAL | Verified | Weak | Weak | Add direct versus group-based licensing scenario. |
+| Identity | Manage external users | Identity guide / Entra ID | PARTIAL | Verified | Weak | Weak | Add B2B guest lifecycle and access scenario. |
+| Identity | Configure SSPR | Identity guide / SSPR | PARTIAL | Needs correction | Moderate | Weak | Remove overbroad license claim; add scope trap. |
+| Identity | Manage built-in Azure roles | Identity guide / Role Types | PARTIAL | Verified | Strong | Moderate | Add least-privilege role selection. |
+| Identity | Assign roles at different scopes | Identity guide / Scope Hierarchy | PARTIAL | Needs correction | Strong | Moderate | Remove false lower-scope override rule. |
+| Identity | Interpret access assignments | Identity guide / RBAC | PARTIAL | Needs correction | Moderate | Weak | Clarify inherited and deny assignments. |
+| Identity | Implement and manage Azure Policy | Identity guide / Azure Policy | PARTIAL | Needs correction | Moderate | Weak | Add initiative, exemption, remediation choices. |
+| Identity | Configure resource locks | Identity guide / Resource Locks | PARTIAL | Needs correction | Moderate | Moderate | Clarify control-plane scope and data-plane limitation. |
+| Identity | Apply and manage tags | Identity guide / Tags | PARTIAL | Verified | Moderate | Moderate | Add inheritance and policy scenario. |
+| Identity | Manage resource groups | Identity guide / Resource Groups | PARTIAL | Verified | Strong | Moderate | Add move and lifecycle constraints. |
+| Identity | Manage subscriptions | Identity guide / Azure Subscriptions | PARTIAL | Needs correction | Moderate | Weak | Remove fixed quota claim; add scope decisions. |
+| Identity | Manage costs using alerts, budgets, and Advisor | Identity guide / Cost Management | PARTIAL | Verified | Moderate | Moderate | Add budget versus policy scenario. |
+| Identity | Configure management groups | Identity guide / Management Groups | PARTIAL | Verified | Moderate | Moderate | Add hierarchy and inheritance scenario. |
+| Storage | Configure Storage firewalls and VNets | [Storage guide](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#storage-networking-security) | PARTIAL | Needs correction | Strong | Moderate | Remove regional price; add access-method scenario. |
+| Storage | Create and use SAS tokens | Storage guide / SAS | PARTIAL | Needs correction | Moderate | Weak | Clarify user-delegation SAS and security trap. |
+| Storage | Configure stored access policies | Storage guide / SAS | PARTIAL | Verified | Moderate | Weak | Add supported-SAS and revocation scenario. |
+| Storage | Manage access keys | Storage guide / Account Key | PARTIAL | Needs correction | Moderate | Moderate | Correct rotation sequence and broad-access risk. |
+| Storage | Configure identity-based access for Azure Files | Storage guide / Identity-Based Authentication | PARTIAL | Needs correction | Moderate | Weak | Distinguish identity sources and access layers. |
+| Storage | Create and configure storage accounts | Storage guide / Storage Account | PARTIAL | Needs correction | Moderate | Weak | Correct default-tier and SKU guidance. |
+| Storage | Configure Storage redundancy | Storage guide / Storage Redundancy | PARTIAL | Needs correction | Strong | Moderate | Correct GRS and zone-resilience language. |
+| Storage | Configure object replication | Storage guide / Object Replication | PARTIAL | Needs correction | Moderate | Weak | Add prerequisites and replication comparison. |
+| Storage | Configure storage account encryption | Storage guide / Encryption | PARTIAL | Needs correction | Moderate | Weak | Add CMK and encryption-in-transit decision. |
+| Storage | Use Storage Explorer and AzCopy | Storage guide / AzCopy and Storage Explorer | PARTIAL | Verified | Moderate | Moderate | Add tool-selection scenario. |
+| Storage | Create and configure file shares | Storage guide / Azure Files | PARTIAL | Needs correction | Moderate | Weak | Add protocol and tier constraints. |
+| Storage | Create and configure blob containers | Storage guide / Blob Containers | PARTIAL | Verified | Moderate | Weak | Add public-access and naming trap. |
+| Storage | Configure storage tiers | Storage guide / Access Tiers | PARTIAL | Needs correction | Moderate | Weak | Add Cold, archive limits, and cost trade-offs. |
+| Storage | Configure blob/container soft delete | Storage guide / Soft Delete | PARTIAL | Verified | Moderate | Weak | Distinguish recovery layers. |
+| Storage | Configure Azure Files snapshots and soft delete | Storage guide / File Share Snapshots | PARTIAL | Needs correction | Moderate | Weak | Add share deletion versus file recovery. |
+| Storage | Configure blob lifecycle management | Storage guide / Blob Lifecycle Management | PARTIAL | Needs correction | Moderate | Weak | Correct rule conditions and archive limitation. |
+| Storage | Configure blob versioning | Storage guide / Blob Versioning | PARTIAL | Verified | Moderate | Weak | Add recovery-tool choice. |
+| Compute | Interpret an ARM template | [Compute guide](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | PARTIAL | Needs correction | Strong | Moderate | Add API-version and dependency traps. |
+| Compute | Modify an ARM template | Compute guide / Modifying ARM Templates | PARTIAL | Needs correction | Strong | Moderate | Correct incremental-mode delete misconception. |
+| Compute | Modify an existing Bicep file | Compute guide / Bicep | PARTIAL | Verified | Moderate | Weak | Add parameter/module decision. |
+| Compute | Deploy ARM or Bicep | Compute guide / Deployment | PARTIAL | Verified | Moderate | Weak | Add deployment scope and what-if. |
+| Compute | Export or convert a deployment | Compute guide / ARM Template Export | PARTIAL | Needs correction | Moderate | Weak | Explain exports are a starting point. |
+| Compute | Create a virtual machine | Compute guide / Virtual Machines | PARTIAL | Needs correction | Moderate | Weak | Add dependency scenario. |
+| Compute | Configure encryption at host | Compute guide / Encryption at Host | PARTIAL | Needs correction | Moderate | Weak | Remove incorrect Disk Encryption memory alternative. |
+| Compute | Move a virtual machine | Compute guide / Moving VMs | PARTIAL | Needs correction | Weak | Weak | Add supported-resource validation and region move method. |
+| Compute | Manage VM sizes | Compute guide / VM Sizing | PARTIAL | Needs correction | Moderate | Weak | Avoid fixed SKU limits; add resize constraints. |
+| Compute | Manage VM disks | Compute guide / VM Disks | PARTIAL | Needs correction | Moderate | Weak | Add disk SKU and shared-disk constraints. |
+| Compute | Deploy to zones and availability sets | Compute guide / VM Availability | PARTIAL | Needs correction | Strong | Moderate | Remove universal SLA and same-size claims. |
+| Compute | Deploy and configure VM Scale Sets | Compute guide / VM Scale Set | PARTIAL | Needs correction | Moderate | Weak | Add orchestration and autoscale scenario. |
+| Compute | Create and manage ACR | Compute guide / ACR | PARTIAL | Verified | Weak | Weak | Add registry/repository/image scenario. |
+| Compute | Provision containers with ACI | Compute guide / ACI | PARTIAL | Needs correction | Moderate | Weak | Remove “instant scaling”; add one-off choice. |
+| Compute | Provision containers with Container Apps | Compute guide / Container Apps | PARTIAL | Needs correction | Moderate | Weak | Add environment, revision, and ingress scenario. |
+| Compute | Manage container sizing and scaling | Compute guide / Container Sizing and Resource Limits | PARTIAL | Needs correction | Moderate | Weak | Remove fixed prices/limits and Kubernetes-only terms. |
+| Compute | Provision an App Service plan | Compute guide / App Service Plan | PARTIAL | Needs correction | Moderate | Weak | Correct SKU feature claims. |
+| Compute | Configure scaling for an App Service plan | Compute guide / App Service Plan | PARTIAL | Verified | Moderate | Weak | Add manual versus autoscale choice. |
+| Compute | Create an App Service | Compute guide / App Service | PARTIAL | Verified | Moderate | Weak | Add runtime/plan dependency scenario. |
+| Compute | Configure certificates and TLS | Compute guide / TLS/SSL Certificates | PARTIAL | Needs correction | Moderate | Weak | Correct managed-certificate eligibility. |
+| Compute | Map custom DNS name | Compute guide / Custom DNS Names | PARTIAL | Needs correction | Moderate | Weak | Correct provider and verification details. |
+| Compute | Configure App Service backup | Compute guide / App Service Backup | PARTIAL | Needs correction | Moderate | Weak | Remove fixed retention/content claims. |
+| Compute | Configure App Service networking | Compute guide / App Service Networking | PARTIAL | Verified | Moderate | Moderate | Add inbound/outbound selection scenario. |
+| Compute | Configure deployment slots | Compute guide / Deployment Slots | PARTIAL | Needs correction | Moderate | Weak | Add swap and sticky-settings trap. |
+| Networking | Create and configure VNets and subnets | [Networking guide](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#vnet-and-subnets) | PARTIAL | Needs correction | Moderate | Weak | Correct overlap and reserved-IP rules. |
+| Networking | Create and configure VNet peering | Networking guide / VNet Peering | PARTIAL | Needs correction | Moderate | Weak | Remove “free regional peering”; add gateway transit. |
+| Networking | Configure public IP addresses | Networking guide / Public IP Addresses | PARTIAL | Needs correction | Weak | Weak | Remove universal pricing; add SKU/allocation choice. |
+| Networking | Configure UDRs | Networking guide / Route Tables and UDRs | PARTIAL | Needs correction | Moderate | Weak | Correct unmatched-route and next-hop behavior. |
+| Networking | Troubleshoot network connectivity | Networking guide / Network Troubleshooting Flow | PARTIAL | Verified | Strong | Moderate | Add effective route/security interpretation. |
+| Networking | Configure NSGs and ASGs | Networking guide / NSG | PARTIAL | Needs correction | Moderate | Weak | Correct first-match priority and statefulness. |
+| Networking | Evaluate effective security rules | Networking guide / Effective Security Rules | PARTIAL | Needs correction | Moderate | Weak | Add NIC/subnet evaluation scenario. |
+| Networking | Implement Azure Bastion | Networking guide / Azure Bastion | PARTIAL | Needs correction | Moderate | Weak | Add dedicated subnet and SKU caveats. |
+| Networking | Configure service endpoints | Networking guide / Service Endpoints | PARTIAL | Verified | Strong | Moderate | Add endpoint-selection scenario. |
+| Networking | Configure private endpoints | Networking guide / Private Endpoints | PARTIAL | Needs correction | Strong | Moderate | Correct private DNS zone and price. |
+| Networking | Configure Azure DNS | Networking guide / Azure DNS | PARTIAL | Verified | Moderate | Weak | Add delegation and record selection. |
+| Networking | Configure internal/public Load Balancer | Networking guide / Load Balancer | PARTIAL | Needs correction | Moderate | Weak | Remove fixed probe values. |
+| Networking | Troubleshoot load balancing | Networking guide / Load Balancer | PARTIAL | Needs correction | Moderate | Weak | Add probe, rule, and NSG scenario. |
+| Monitoring | Interpret Azure Monitor metrics | [Monitoring guide](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#metrics) | PARTIAL | Needs correction | Moderate | Weak | Distinguish platform and guest metrics. |
+| Monitoring | Configure Azure Monitor log settings | Monitoring guide / Logs | PARTIAL | Needs correction | Moderate | Weak | Add diagnostic settings and data collection rules. |
+| Monitoring | Query and analyze Azure Monitor logs | Monitoring guide / Logs | PARTIAL | Needs correction | Moderate | Weak | Replace invalid KQL and schema assumptions. |
+| Monitoring | Configure alerts, action groups, processing rules | Monitoring guide / Alerts | PARTIAL | Verified | Moderate | Moderate | Add suppression and routing scenario. |
+| Monitoring | Monitor VMs, storage, networks using Insights | Monitoring guide / Azure Monitor Insights | PARTIAL | Needs correction | Moderate | Weak | Add storage/network insight coverage. |
+| Monitoring | Use Network Watcher and Connection Monitor | Monitoring guide / Network Watcher | PARTIAL | Needs correction | Moderate | Weak | Mark retiring NSG flow logs; use VNet flow logs. |
+| Recovery | Create a Recovery Services vault | [Recovery guide](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-backup) | PARTIAL | Needs correction | Moderate | Weak | Add vault choice and protection scenario. |
+| Recovery | Create an Azure Backup vault | Recovery guide / Vault comparison | PARTIAL | Needs correction | Moderate | Weak | Correct protected-workload comparison. |
+| Recovery | Create and configure a backup policy | Recovery guide / Backup Policy | PARTIAL | Verified | Moderate | Weak | Add schedule/retention scenario. |
+| Recovery | Perform Azure Backup backup and restore | Recovery guide / Backup and Restore Flow | PARTIAL | Needs correction | Moderate | Weak | Explain restore choices without universal backup behavior. |
+| Recovery | Configure Azure Site Recovery | Recovery guide / Azure Site Recovery | PARTIAL | Needs correction | Moderate | Weak | Remove fixed RPO claim; add supported scenario. |
+| Recovery | Perform Site Recovery failover | Recovery guide / Key Concepts | PARTIAL | Needs correction | Moderate | Weak | Add test/planned/unplanned decision table. |
+| Recovery | Configure and interpret backup reports and alerts | Recovery guide / Alerts | PARTIAL | Needs correction | Weak | Weak | Add Backup center, job state, reporting, and alert scenario. |
 
-## Domain 1: Manage Azure Identities and Governance (20–25%)
+## Baseline Summary
 
-### Manage Microsoft Entra Users and Groups
+| Domain | Objectives | COMPLETE | PARTIAL | MISSING | Representation |
+|---|---:|---:|---:|---:|---:|
+| Manage Azure identities and governance | 15 | 0 | 15 | 0 | 100% |
+| Implement and manage storage | 17 | 0 | 17 | 0 | 100% |
+| Deploy and manage Azure compute resources | 24 | 0 | 24 | 0 | 100% |
+| Implement and manage virtual networking | 13 | 0 | 13 | 0 | 100% |
+| Monitor and maintain Azure resources | 13 | 0 | 13 | 0 | 100% |
+| **Total** | **82** | **0** | **82** | **0** | **100%** |
 
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create users and groups | [Identity Guide — Microsoft Entra ID](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#microsoft-entra-id-identity-management) | Covered |
-| Manage user and group properties | [Identity Guide — Users and Groups](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#users-and-groups) | Covered |
-| Manage licenses in Microsoft Entra ID | [Identity Guide — User Properties](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#user-properties) | Covered |
-| Manage external users | [Identity Guide — Microsoft Entra ID](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#microsoft-entra-id-identity-management) | Supporting |
-| Configure self-service password reset (SSPR) | [Identity Guide — SSPR](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#self-service-password-reset-sspr) | Covered |
+`100% representation` means every official objective has a mapped location. It is **not** complete learning coverage. At this baseline, complete coverage is $0 / 82 = 0\%$ because the legacy material does not consistently meet the stated COMPLETE standard.
 
-### Manage Access to Azure Resources
+## Source of Truth
 
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Manage built-in Azure roles | [Identity Guide — Built-in Roles](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#role-types) | Covered |
-| Assign roles at different scopes | [Identity Guide — Scope Hierarchy](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#scope-hierarchy) | Covered |
-| Interpret access assignments | [Identity Guide — RBAC Core Concept](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#core-concept) | Covered |
+- [Official AZ-104 study guide](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104)
+- [Official source index](sources/official-sources.md)
 
-### Manage Azure Subscriptions and Governance
+## Scope
 
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Implement and manage Azure Policy | [Identity Guide — Azure Policy](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#azure-policy) | Covered |
-| Configure resource locks | [Identity Guide — Resource Locks](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#resource-locks) | Covered |
-| Apply and manage tags on resources | [Identity Guide — Tags](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#tags) | Covered |
-| Manage resource groups | [Identity Guide — Resource Groups](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#resource-groups) | Covered |
-| Manage subscriptions | [Identity Guide — Subscriptions](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#azure-subscriptions) | Covered |
-| Manage costs by using alerts, budgets, and Azure Advisor | [Identity Guide — Cost Management](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#cost-management) | Covered |
-| Configure management groups | [Identity Guide — Management Groups](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md#management-groups) | Covered |
-
----
-
-## Domain 2: Implement and Manage Storage (15–20%)
-
-### Configure Access to Storage
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Configure Azure Storage firewalls and virtual networks | [Storage Guide — Storage Networking Security](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#storage-networking-security) | Covered |
-| Create and use shared access signature (SAS) tokens | [Storage Guide — Shared Access Signature](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#shared-access-signature-sas) | Covered |
-| Configure stored access policies | [Storage Guide — Stored Access Policy](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#shared-access-signature-sas) | Covered |
-| Manage access keys | [Storage Guide — Account Key](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#account-key-primarysecondary) | Covered |
-| Configure identity-based access for Azure Files | [Storage Guide — Identity-Based Authentication](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#identity-based-authentication) | Covered |
-
-### Configure and Manage Storage Accounts
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create and configure storage accounts | [Storage Guide — Storage Account](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#azure-storage-account) | Covered |
-| Configure Azure Storage redundancy | [Storage Guide — Storage Redundancy](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#storage-redundancy) | Covered |
-| Configure object replication | [Storage Guide — Blob Replication](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#blob-replication) | Covered |
-| Configure storage account encryption | [Storage Guide — Encryption](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#encryption) | Covered |
-| Manage data by using Azure Storage Explorer and AzCopy | [Storage Guide — Data Management](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#managing-data-with-azcopy-and-storage-explorer) | Covered |
-
-### Configure Azure Files and Azure Blob Storage
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create and configure a file share in Azure Files | [Storage Guide — Azure Files](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#azure-files) | Covered |
-| Create and configure a container in Azure Blob Storage | [Storage Guide — Blob Containers](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#blob-containers-and-structure) | Covered |
-| Configure storage tiers | [Storage Guide — Access Tiers](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#access-tiers) | Covered |
-| Configure soft delete for blobs and containers | [Storage Guide — Soft Delete](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#soft-delete) | Covered |
-| Configure snapshots and soft delete for Azure Files | [Storage Guide — File Share Soft Delete](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#file-share-soft-delete) | Covered |
-| Configure blob lifecycle management | [Storage Guide — Blob Lifecycle Management](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#blob-lifecycle-management) | Covered |
-| Configure blob versioning | [Storage Guide — Blob Versioning](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md#blob-versioning) | Covered |
-
----
-
-## Domain 3: Deploy and Manage Azure Compute Resources (20–25%)
-
-### Automate Deployment with ARM Templates or Bicep
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Interpret an Azure Resource Manager template | [Compute Guide — ARM Templates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | Covered |
-| Modify an existing Azure Resource Manager template | [Compute Guide — ARM Templates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-templates) | Covered |
-| Modify an existing Bicep file | [Compute Guide — Bicep](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#bicep) | Covered |
-| Deploy resources by using ARM template or Bicep | [Compute Guide — Deployment](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#deployment) | Covered |
-| Export deployment as ARM template or convert ARM to Bicep | [Compute Guide — ARM Template Export](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#arm-template-export) | Covered |
-
-### Create and Configure Virtual Machines
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create a virtual machine | [Compute Guide — VM Sizing](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#vm-sizing) | Covered |
-| Configure encryption at host | [Compute Guide — Encryption at Host](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#encryption-at-host) | Covered |
-| Move a virtual machine | [Compute Guide — Moving VMs](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#moving-vms) | Covered |
-| Manage virtual machine sizes | [Compute Guide — VM Sizing](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#vm-sizing) | Covered |
-| Manage virtual machine disks | [Compute Guide — VM Disks](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#vm-disks) | Covered |
-| Deploy to availability zones and availability sets | [Compute Guide — VM Availability](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#virtual-machine-availability) | Covered |
-| Deploy and configure Azure Virtual Machine Scale Sets | [Compute Guide — VM Scale Set](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#vm-scale-set) | Covered |
-
-### Provision and Manage Containers
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create and manage Azure Container Registry | [Compute Guide — ACR](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-registry-acr) | Covered |
-| Provision container using Azure Container Instances | [Compute Guide — ACI](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-instances-aci) | Covered |
-| Provision container using Azure Container Apps | [Compute Guide — Container Apps](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#azure-container-apps) | Covered |
-| Manage sizing and scaling for containers | [Compute Guide — Container Sizing and Scaling](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#container-sizing-and-resource-limits) | Covered |
-
-### Create and Configure Azure App Service
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Provision an App Service plan | [Compute Guide — App Service Plan](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-plan) | Covered |
-| Configure scaling for App Service plan | [Compute Guide — App Service Plan](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-plan) | Covered |
-| Create an App Service | [Compute Guide — App Service](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service) | Covered |
-| Configure certificates and TLS | [Compute Guide — TLS/SSL Certificates](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#tlsssl-certificates) | Covered |
-| Map custom DNS name to App Service | [Compute Guide — Custom DNS Names](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#custom-dns-names-and-domain-mapping) | Covered |
-| Configure backup for App Service | [Compute Guide — App Service Backup](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-backup) | Covered |
-| Configure networking for App Service | [Compute Guide — App Service Networking](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#app-service-networking) | Covered |
-| Configure deployment slots | [Compute Guide — Deployment Slots](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md#deployment-slots) | Covered |
-
----
-
-## Domain 4: Implement and Manage Virtual Networking (15–20%)
-
-### Configure and Manage Virtual Networks
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create and configure virtual networks and subnets | [Networking Guide — VNet and Subnets](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#vnet-and-subnets) | Covered |
-| Create and configure virtual network peering | [Networking Guide — VNet Peering](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#vnet-peering) | Covered |
-| Configure public IP addresses | [Networking Guide — Public IP Addresses](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#public-ip-addresses) | Covered |
-| Configure user-defined routes | [Networking Guide — Route Tables](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#route-tables-and-user-defined-routes) | Covered |
-| Troubleshoot network connectivity | [Networking Guide — Network Troubleshooting Flow](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#network-troubleshooting-flow) | Covered |
-
-### Configure Secure Access to Virtual Networks
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create and configure NSGs and ASGs | [Networking Guide — NSG](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#nsg-network-security-group) and [ASG](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#application-security-groups-asg) | Covered |
-| Evaluate effective security rules | [Networking Guide — Effective Security Rules](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#effective-security-rules) | Covered |
-| Implement Azure Bastion | [Networking Guide — Azure Bastion](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-bastion) | Covered |
-| Configure service endpoints for PaaS | [Networking Guide — Service Endpoints](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#service-endpoints) | Covered |
-| Configure private endpoints for PaaS | [Networking Guide — Private Endpoints](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#private-endpoints) | Covered |
-
-### Configure Name Resolution and Load Balancing
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Configure Azure DNS | [Networking Guide — Azure DNS](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-dns) | Covered |
-| Configure internal or public load balancer | [Networking Guide — Load Balancer](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#load-balancer) | Covered |
-| Troubleshoot load balancing | [Networking Guide — Network Troubleshooting](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#network-troubleshooting-flow) | Supporting |
-
----
-
-## Domain 5: Monitor and Maintain Azure Resources (10–15%)
-
-### Monitor Resources in Azure
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Interpret metrics in Azure Monitor | [Monitoring Guide — Metrics](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#metrics) | Covered |
-| Configure log settings in Azure Monitor | [Monitoring Guide — Azure Monitor](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-monitor) | Covered |
-| Query and analyze logs in Azure Monitor | [Monitoring Guide — KQL Examples](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#logs) | Covered |
-| Set up alert rules, action groups, and alert processing | [Monitoring Guide — Alerts](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#alerts) | Covered |
-| Configure monitoring of VMs, storage, networks | [Monitoring Guide — Azure Monitor Insights](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-monitor-insights) | Covered |
-| Use Network Watcher and Connection monitor | [Monitoring Guide — Network Watcher](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#network-watcher) | Covered |
-
-### Implement Backup and Recovery
-
-| Microsoft Objective | Repository Section | Coverage |
-|---|---|---|
-| Create Recovery Services vault | [Recovery Guide — Azure Backup](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-backup) | Covered |
-| Create Azure Backup vault | [Recovery Guide — Azure Backup](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#recovery-services-vault-vs-backup-vault) | Covered |
-| Create and configure backup policy | [Recovery Guide — Backup Policy](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#backup-policy) | Covered |
-| Perform backup and restore operations | [Recovery Guide — Backup and Restore Flow](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#backup-and-restore-flow) | Covered |
-| Configure Azure Site Recovery | [Recovery Guide — Azure Site Recovery](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#azure-site-recovery) | Covered |
-| Perform failover using Site Recovery | [Recovery Guide — Failover](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#key-concepts) | Covered |
-| Configure and interpret reports and alerts | [Recovery Guide — Backup Monitoring and Alerts](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md#alerts) | Covered |
-
----
-
-## Master Mental Map Coverage
-
-| Concept | Master Mental Map Section | Status |
-|---|---|---|
-| Core decision chain | [Decision Chain](AZ-104_MASTER_MENTAL_MAP.md#az-104-core-decision-chain) | Covered |
-| Reference environment | [Reference Environment](AZ-104_MASTER_MENTAL_MAP.md#one-reference-environment) | Covered |
-| Five domains overview | [Five Official Domains](AZ-104_MASTER_MENTAL_MAP.md#five-official-domains) | Covered |
-| Critical concept pairs | [Critical Concept Pairs](AZ-104_MASTER_MENTAL_MAP.md#critical-concept-pairs) | Covered |
-| Configuration scope rules | [Configuration Scope Rules](AZ-104_MASTER_MENTAL_MAP.md#configuration-scope-rules) | Covered |
-| Decision trees | [Storage, Networking, Availability, Recovery trees](AZ-104_MASTER_MENTAL_MAP.md) | Covered |
-
----
-
-## Summary
-
-| Metric | Value |
-|---|---|
-| Total Microsoft Objectives | 65 |
-| Covered | 65 |
-| Supporting | 0 |
-| Out of V1 Scope | 0 |
-| Coverage % | 100% |
-
-All official Microsoft AZ-104 objectives are now fully covered in this repository at Version 1.
-
-**Coverage upgrade note (Final Audit):**
-- Elevated 8 objectives from "Supporting" to "Covered":
-  - Manage data with AzCopy and Storage Explorer
-  - Modify ARM templates (added modification examples)
-  - Configure certificates and TLS (added HTTPS/SSL binding)
-  - Map custom DNS names (added A/CNAME/ALIAS explanation)
-  - Configure backup for App Service (added backup policy and restore)
-  - Query and analyze logs in Azure Monitor (added KQL examples)
-  - Manage sizing and scaling for containers (added sizing strategy and auto-scaling)
-  - Configure and interpret reports and alerts (integrated with monitoring)
-- All 65 objectives now have substantive content
-
----
-
-## Notes
-
-- **V1 Scope:** Focuses on decision logic, configuration recognition, and conceptual understanding
-- **Out of V1 Scope:** Hands-on implementation, complete lab exercises, production templates
-- **Supporting Objectives:** Included in related domain sections; direct implementation labs excluded
-- **Blueprint Verification Date:** April 17, 2026
-
----
-
-## How to Use This Map
-
-1. For each exam domain, find your objective in the table
-2. Follow the Repository Section link
-3. Read the relevant content in the domain guide
-4. Check the coverage level:
-   - **Covered** = full explanation in repository
-   - **Supporting** = related content (you may need official Microsoft docs for full lab details)
-   - **Out of scope** = not in V1 (documented for clarity)
+This repository remains knowledge-only. Command and template fragments explain configuration concepts; they are not deployment exercises or labs.

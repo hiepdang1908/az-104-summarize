@@ -40,8 +40,6 @@ This is an independent learning project. Microsoft Learn and current Azure produ
 | Implement and manage virtual networking | 15-20% | Networking section of the combined guide |
 | Monitor and maintain Azure resources | 10-15% | Monitoring and recovery sections of the combined guide |
 
-The repository maps all **82** objective bullets in the April 17, 2026 study guide. Mapping is not a guarantee of exam coverage or exam success. See the objective map for the current knowledge-quality status of each objective.
-
 ## Documentation Principles
 
 - Microsoft Learn wins when this repository conflicts with a source.

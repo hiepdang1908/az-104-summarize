@@ -543,7 +543,7 @@ Effect: Deny (block creation if not compliant)
 | **Question:** Does this resource follow rules? | **Question:** Does this user have permission? |
 | **Example:** All VMs must have backup enabled | **Example:** Only alice can create VMs |
 | **Applied to:** All resources regardless of user | **Applied to:** Users/service principals |
-| **Can be overridden by:** Exemption rules | **Can be overridden by:** Different role assignment |
+| **Scope behavior:** Applicability can change through exclusions, exemptions, or rule conditions | **Scope behavior:** Parent grants inherit; normal lower-scope grants do not subtract access |
 
 ### Policy vs. Lock
 
@@ -930,7 +930,7 @@ Policies:
 - Specific roles = limited to one service
 
 **Governance:**
-- Policy = enforce configuration (can be overridden)
+- Policy = enforce or assess configuration (applicability can include exclusions, exemptions, and conditions)
 - Lock = control-plane protection; remove it with lock-management permission
 - Tags = metadata for organization (not enforced)
 
@@ -948,7 +948,7 @@ Policies:
 - Entra ID = identity; RBAC = authorization
 - RBAC = who; Policy = compliance
 - Policy = can be exempted; Lock = can be removed only with lock-management permission
-- Scope inherited = down hierarchy only
+- Scope behavior is service-specific: RBAC, Policy, and locks can apply downward; tags do not automatically inherit
 - Tags don't enforce = need policy for enforcement
 
 ---

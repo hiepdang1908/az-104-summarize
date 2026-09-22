@@ -114,7 +114,7 @@ Management Group
         │   └── Azure Monitor Insights
         │
         └── Recovery Layer
-            ├── Recovery Services Vault
+            ├── Recovery Services / Backup Vault (chosen by workload)
             ├── Backup Policy (schedule + retention)
             ├── Azure Backup (point-in-time restore)
             ├── Azure Site Recovery (regional failover)
@@ -191,7 +191,7 @@ Choose data protection
 ├── Soft Delete (recover accidentally deleted)
 ├── Versioning (recover old version)
 ├── Snapshots (point-in-time copy)
-├── Backup (restore data to Recovery Services Vault)
+├── Backup (vault and protection tier depend on workload support)
 └── Replication (copy to secondary region)
 ```
 
@@ -321,8 +321,8 @@ Troubleshooting
     ↓
 Availability strategy
 ├── Backup
-│   ├── Recovery Services Vault (long-term)
-│   ├── Backup Vault (block-level)
+│   ├── Recovery Services Vault (VMs, Azure Files, traditional integrations)
+│   ├── Backup Vault (Blobs, Disks, newer data-protection workloads)
 │   └── Policy (schedule + retention)
 │
 └── Site Recovery
@@ -387,7 +387,12 @@ Resource Group
 Resource
 ```
 
-**Inheritance rule:** Lower scopes inherit settings from higher scopes, unless explicitly overridden.
+**Scope behavior is service-specific:**
+
+- **RBAC:** Role assignments at higher scopes are inherited; normal lower-scope allow assignments add access and do not remove inherited grants. Deny assignments are separate controls.
+- **Azure Policy:** Assignments evaluate applicable descendant resources unless exclusions, exemptions, or rule conditions change applicability.
+- **Resource locks:** A lock at a parent scope is inherited by descendants; the most restrictive inherited lock takes precedence.
+- **Tags:** Tags do not automatically inherit from subscriptions or resource groups; use Azure Policy or another explicit propagation mechanism when needed.
 
 ### Scope Examples
 
@@ -396,7 +401,7 @@ Resource
 | **Role Assignment** | MG/Sub/RG/Resource | Yes (down) | An assignment at a management group can apply to descendant subscriptions |
 | **Azure Policy** | MG/Sub/RG | Yes (down) | Yes (MG can enforce across subs) |
 | **Resource Lock** | Subscription/RG/Resource | Yes (down) | A parent lock is inherited by child resources |
-| **Tag** | Resource/RG | No (must tag each) | No |
+| **Tag** | Subscription/RG/Resource | No (unless propagated by Policy or another mechanism) | No |
 | **VNet** | Resource Group | No | No (per RG) |
 | **VNet Peering** | Subscription | No | Yes (can peer across subs) |
 | **Subnet NSG** | Subnet (within VNet) | No | No |

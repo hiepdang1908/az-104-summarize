@@ -57,7 +57,7 @@ Configure data protection
 ├── Snapshots
 ├── Lifecycle Management
 ├── Replication
-└── Backup to Recovery Services Vault
+└── Azure Backup (vault and tier depend on the workload)
     ↓
 Result: Secure, redundant, accessible data storage
 ```
@@ -779,7 +779,7 @@ Old version becomes current
 
 **What it does:** Recover accidentally deleted blob data or containers within a configured retention period.
 
-**Retention period:** 1-365 days (configurable)
+**Blob soft-delete retention period:** currently 1–365 days (configurable)
 
 **How it works:**
 
@@ -947,7 +947,7 @@ File recovered
 
 **What it does:** Recover deleted file shares within retention period
 
-**Retention:** 1-365 days
+**File-share soft-delete retention:** currently 1–365 days
 
 **Scenario:**
 
@@ -1173,7 +1173,7 @@ Result: Automated, efficient, resumable
 | Aspect | Soft Delete | Versioning |
 |---|---|---|
 | **Protects against** | Accidental deletion | Accidental overwrite |
-| **Retention** | Configurable (1-365 days) | Indefinite |
+| **Retention** | Configurable, currently 1–365 days | Indefinite |
 | **Cost** | Soft-deleted data still counts | Each version counts |
 
 ### Backup vs. Replication
@@ -1181,7 +1181,7 @@ Result: Automated, efficient, resumable
 | Aspect | Backup | Replication |
 |---|---|---|
 | **Purpose** | Point-in-time restore | Continuous redundancy |
-| **Target** | Recovery Services Vault | Another storage account |
+| **Target** | Workload-supported vault or operational tier | Another storage account |
 | **Retention** | User-defined (days/years) | Continuous |
 | **Use case** | Recover deleted data, compliance | Disaster recovery |
 

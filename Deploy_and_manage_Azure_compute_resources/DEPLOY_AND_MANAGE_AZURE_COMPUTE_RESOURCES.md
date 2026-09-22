@@ -1154,12 +1154,14 @@ Costs: Minimal performance impact (transparent to VM)
 **When to use:**
 
 ```text
-Regulatory requirement: All temporary/cached data must be encrypted at hardware level
+Regulatory requirement: Supported temporary disks and disk caches must be encrypted at rest on the host
     ↓
 Enable encryption at host
 
 Alternative for protection of data in use / VM memory: Use a Confidential VM. Azure Disk Encryption protects OS and data disks, not active memory.
 ```
+
+**Encryption boundary:** Azure Disk Storage server-side encryption protects managed OS and data disks at rest and is enabled by default. Encryption at host extends at-rest protection to supported temporary disks and host caches. Azure Disk Encryption works inside the guest OS by using BitLocker on Windows or dm-crypt on Linux. None of these terms means that every layer, including active RAM, is encrypted.
 
 ---
 

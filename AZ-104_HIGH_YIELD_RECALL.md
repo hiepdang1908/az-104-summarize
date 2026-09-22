@@ -22,8 +22,8 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Must prevent accidental deletion? | CanNotDelete lock | ReadOnly lock (also prevents modify) |
 | Must prevent modification? | ReadOnly lock | CanNotDelete (allows modify) |
 | Need to enforce configuration? | Azure Policy | RBAC (access control) |
-| Can policy be overridden? | Yes (via exemption) | Lock (remove it with lock-management permission) |
-| Scope inheritance? | Yes (down hierarchy only) | RBAC (no upward inheritance) |
+| Can policy applicability have exceptions? | Yes: exclusions, exemptions, and rule conditions | Lock (remove it with lock-management permission) |
+| Scope inheritance? | Service-specific: RBAC, Policy, and locks can apply downward; tags do not automatically inherit | No upward inheritance |
 | Need billing separation? | New subscription | Resource Group (same billing) |
 | Bulk policy across subs? | Management Group | Subscription (one sub only) |
 | Track spending per team? | Tags + Cost Analysis | Budgets (alerts, not tracking) |
@@ -70,7 +70,9 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Web application hosting? | App Service | VM (full control, more management) |
 | Bigger machine? | Scale Up | Scale Out (more machines) |
 | More machines? | Scale Out | Scale Up (bigger machine) |
-| Encrypt temporary disk and caches? | Encryption at Host | Disk encryption (all layers) |
+| Encrypt managed OS/data disks at rest? | Server-side encryption (SSE), enabled by default | Does not cover temporary disks or disk caches |
+| Extend at-rest encryption to supported temporary disks and caches? | Encryption at host | Support depends on VM size/configuration |
+| Encrypt inside the VM guest? | Azure Disk Encryption (BitLocker/dm-crypt) | Disk encryption does not mean RAM encryption |
 | Move VM to different RG? | Validate dependent-resource move support | Cross-subscription move can be supported, but never assume it |
 
 ---
@@ -94,6 +96,37 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Distribute TCP/UDP traffic? | Load Balancer | Application Gateway (HTTP/HTTPS) |
 | Distribute HTTP traffic with routing? | Application Gateway | Load Balancer (basic) |
 | Filter traffic at NIC or subnet? | NSG | Network Watcher (monitoring) |
+
+---
+
+## Important Ports for AZ-104
+
+| Service / Protocol | Port | Transport | AZ-104 use | Important Note |
+|---|---:|---|---|---|
+| SSH | 22 | TCP | Administer Linux VMs | Azure Bastion can reach the target on 22; direct access requires an allowed network path and a listening SSH service. |
+| RDP | 3389 | TCP | Administer Windows VMs | Azure Bastion can reach the target on 3389; direct access requires an allowed network path and a listening RDP service. |
+| HTTP | 80 | TCP | Unencrypted web traffic and some health probes | Prefer HTTPS for sensitive traffic; confirm the application actually listens on 80. |
+| HTTPS | 443 | TCP | Encrypted web/control-plane traffic, including client-side Bastion access | Opening 443 does not automatically permit SSH or RDP to a target VM. |
+| Azure Bastion (client side) | 443 | TCP | Browser or supported client connection to Bastion | Bastion then connects to the target over SSH 22 or RDP 3389 by default. |
+| DNS | 53 | UDP and TCP | Name resolution | UDP is common for queries; TCP is also required in some cases, so do not assume UDP-only. |
+| SMB / Azure Files | 445 | TCP | Mount an Azure Files SMB share | Outbound 445 is commonly blocked by organizations or ISPs. |
+| NTP | 123 | UDP | Time synchronization | Check the time source and outbound path when clocks drift. |
+| WinRM over HTTP | 5985 | TCP | Windows remote management / PowerShell remoting | HTTP does not provide TLS transport encryption. |
+| WinRM over HTTPS | 5986 | TCP | Encrypted Windows remote management | Requires an HTTPS listener and appropriate certificate configuration. |
+
+**Bastion memory rule:** The target VM normally needs no public IP and no public inbound rule for 22/3389. The client reaches Bastion over HTTPS 443; Bastion reaches the target on the selected management port.
+
+**Port troubleshooting checklist:**
+
+1. Identify the source IP, subnet, or service tag.
+2. Identify the destination IP/FQDN and subnet.
+3. Confirm TCP or UDP.
+4. Confirm the destination port and that the service is listening.
+5. Evaluate NSG rules in priority order at both subnet and NIC.
+6. Inspect the effective security rules on the target NIC.
+7. Check the route table and effective routes in both directions.
+8. Verify DNS resolves the destination to the intended public or private IP.
+9. Check the service firewall and private-endpoint configuration.
 
 ---
 
@@ -126,8 +159,9 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | How long recovery acceptable? | RTO | RPO (data loss) |
 | Point-in-time restore? | Backup | Site Recovery (failover) |
 | Replicate to secondary region? | Site Recovery | Backup (same region vault) |
-| Long-term retention (years)? | Backup with policy | Soft Delete (30-365 days) |
-| Managed restore infrastructure? | Recovery Services Vault | DIY backup server |
+| Long-term retention (years)? | Backup with policy | Blob soft delete: configurable retention period, currently 1–365 days |
+| Vault for VMs, Azure Files, or traditional backup integrations? | Recovery Services vault | Backup vault |
+| Vault for Blob, Disk, or supported newer data-protection workloads? | Backup vault | Recovery Services vault |
 | Backup VM to vault? | Recovery Services Vault | Backup to storage account (old) |
 | Continuous replication to region? | Site Recovery | GRS redundancy (passive) |
 | Test failover? | Site Recovery test | Site Recovery production failover |
@@ -161,6 +195,8 @@ Answer: Database Admin (control plane) + Data Plane Viewer excluded
 | **Resource** | N/A | Resource-level | N/A |
 
 **Rule:** Role assignments inherit downward. Design least privilege at the narrowest scope; normal lower-scope assignments do not subtract an inherited grant.
+
+**Service-specific scope rules:** Policy assignments apply to applicable descendant resources unless exclusions, exemptions, or rule conditions change applicability. Parent locks are inherited. Tags do not automatically inherit; use Azure Policy or another explicit mechanism when tag propagation is required. RBAC deny assignments are separate from normal role grants.
 
 ---
 

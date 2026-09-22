@@ -1337,7 +1337,7 @@ Backup service for point-in-time restore
 ```text
 Create backup
     ↓
-Stored in Recovery Services Vault
+Recovery point location depends on workload and protection tier
     ↓
 Retention policy: Keep for X days/weeks/months/years
     ↓
@@ -1348,8 +1348,8 @@ Need to restore: Get backup from specific date/time
 
 | Aspect | Recovery Services Vault | Backup Vault |
 |---|---|---|
-| **Purpose** | Backup and Site Recovery vault for established workloads | Backup vault for supported newer Azure Backup workloads |
-| **Typical workloads** | Azure VMs, Azure Files, SQL Server in Azure VM, MARS, and Site Recovery | Azure Blobs, Azure Disks, Azure Database for PostgreSQL, and other supported V2 workloads |
+| **Purpose** | Backup and Site Recovery vault for established workloads | Backup vault for supported newer Azure data-protection workloads |
+| **Typical workloads** | Azure VMs, Azure Files, SQL Server in Azure VM, MARS/MABS, and Site Recovery | Azure Blob operational or vaulted backup where supported, Azure Disk Backup, Azure Database for PostgreSQL, and other supported V2 workloads |
 | **Site Recovery** | Yes | No |
 | **Selection rule** | Choose when the protected workload or Site Recovery requires it | Choose only when the workload is supported by Backup vault |
 
@@ -1360,6 +1360,8 @@ VM backup → Recovery Services Vault
 Disk backup → Backup Vault
 SQL Server backup → Recovery Services Vault
 ```
+
+**Memory rule:** Choose the vault from the workload and supported Azure Backup service or protection tier—not from the desired retention length. Blob operational backup data stays in the source storage account; Blob vaulted backup data is copied to Backup vault storage. Azure Disk Backup is managed through a Backup vault but currently uses the operational tier rather than Backup vault storage.
 
 ### Backup Policy
 
@@ -1626,7 +1628,7 @@ Means:
 - Site Recovery = regional failover
 - RPO = acceptable data loss
 - RTO = acceptable recovery time
-- Recovery Services Vault = long-term retention
+- Vault choice = workload and supported backup service, not retention length
 - Soft Delete = recover deleted quickly
 
 **Key Distinctions:**

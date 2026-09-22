@@ -44,7 +44,6 @@ This is an independent learning project. Microsoft Learn and current Azure produ
 - Microsoft Learn wins when this repository conflicts with a source.
 - Version-, SKU-, region-, and workload-dependent behavior is stated as conditional.
 - Fixed prices, quotas, and SLA percentages are avoided unless a current official source makes them essential.
-- Changes should be small, source-backed, AZ-104 relevant, and recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ## Core Governance Distinction
 
@@ -63,7 +62,6 @@ az-104-summarize/
 ├── README.md
 ├── AZ-104_MASTER_MENTAL_MAP.md
 ├── AZ-104_HIGH_YIELD_RECALL.md
-├── CHANGELOG.md
 ├── Manage_Azure_identities_and_governance/
 ├── Implement_and_manage_storage/
 ├── Deploy_and_manage_Azure_compute_resources/

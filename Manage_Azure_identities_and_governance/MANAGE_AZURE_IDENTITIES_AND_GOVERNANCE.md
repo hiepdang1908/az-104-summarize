@@ -238,8 +238,11 @@ alice@contoso.com (Principal)
 **Custom roles** (advanced):
 
 - Created when built-in roles don't match your needs
-- Define exactly which actions are allowed
-- Scoped to subscription
+- `Actions`, `NotActions`, `DataActions`, and `NotDataActions` define the role's permissions
+- `AssignableScopes` define where the role is available for assignment, such as supported management group, subscription, or resource group scopes
+- A role assignment grants the custom role to a principal at a selected allowed scope; assignments at parent scopes are inherited by child scopes
+
+Custom roles are not inherently subscription-scoped. `AssignableScopes` control where the role can be assigned, including supported child scopes.
 
 ### Critical Distinction: Contributor vs. Owner
 

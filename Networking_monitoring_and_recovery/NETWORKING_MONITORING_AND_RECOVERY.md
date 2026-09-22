@@ -504,7 +504,7 @@ Private Endpoint (service gets private IP in subnet)
     ↓
 Example: Storage Account private IP: 10.0.3.5
     ↓
-Application: Connects to 10.0.3.5 (private network)
+Application uses myaccount.blob.core.windows.net; DNS returns 10.0.3.5
     ↓
 Result: Complete private connectivity
 ```
@@ -530,8 +530,10 @@ Result: Private IP assigned (e.g., 10.0.3.5)
 Private DNS Zone: privatelink.blob.core.windows.net
     ↓
 Zone Resolution:
-├── blob.core.windows.net → 10.0.3.5 (private IP)
-└── Link to VNet
+├── Application uses: myaccount.blob.core.windows.net
+├── Public DNS CNAME: myaccount.privatelink.blob.core.windows.net
+├── Private DNS A record: myaccount → 10.0.3.5
+└── Link the private DNS zone to the VNet
     ↓
 Result: Applications resolve storage name to private IP
 ```
@@ -713,8 +715,12 @@ External clients cannot resolve these names
 ```text
 Storage Account: myaccount
 Private Endpoint: Private IP 10.0.3.5
-Private DNS Zone: blob.core.windows.net
-Record: myaccount.blob.core.windows.net → 10.0.3.5
+Private DNS Zone: privatelink.blob.core.windows.net
+Application uses: myaccount.blob.core.windows.net
+    ↓
+Public DNS CNAME: myaccount.privatelink.blob.core.windows.net
+    ↓
+Private DNS A record: myaccount → 10.0.3.5
     ↓
 Application resolves: myaccount.blob.core.windows.net → 10.0.3.5
 ```

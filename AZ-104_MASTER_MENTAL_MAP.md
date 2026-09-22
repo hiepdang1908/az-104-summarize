@@ -471,8 +471,9 @@ Does load change frequently?
     ↓ NO → USE AVAILABILITY SET (manual + planned maintenance resilience)
 
 Must be zone-redundant (physically separate locations)?
-    ↓ YES → AVAILABILITY ZONE or ZONE-REDUNDANT (ZRS, GRS, GZRS)
-    ↓ NO → AVAILABILITY SET (single datacenter)
+    ↓ YES → AVAILABILITY ZONE (compute) or ZRS / GZRS / RA-GZRS (storage)
+    ↓ NO, but storage needs secondary-region protection → GRS / RA-GRS
+    ↓ NO → AVAILABILITY SET (compute, single datacenter) or LRS (storage)
 ```
 
 ## Recovery Decision Tree

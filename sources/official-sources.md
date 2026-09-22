@@ -16,6 +16,7 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Group-Based Licensing](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-group-licenses)
 - [Microsoft Entra B2B Collaboration](https://learn.microsoft.com/en-us/entra/external-id/what-is-b2b)
 - [Azure Role-Based Access Control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
+- [Azure Custom Roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
 - [Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/overview)
 - [Azure Resource Locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources)
 - [Azure Management Groups](https://learn.microsoft.com/en-us/azure/governance/management-groups/overview)

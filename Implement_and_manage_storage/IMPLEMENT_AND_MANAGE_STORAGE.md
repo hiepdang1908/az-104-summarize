@@ -613,7 +613,7 @@ Private Endpoint (storage gets private IP in subnet)
     ↓
 Example: 10.0.1.5 (private IP)
     ↓
-Application access storage via 10.0.1.5 (private network)
+Application uses account.blob.core.windows.net; DNS returns 10.0.1.5
 ```
 
 **Configuration:**
@@ -648,7 +648,7 @@ Connection via private network
 |---|---|---|
 | **Network model** | Service still public endpoint | Service gets private IP |
 | **IP address** | Service's public IP | Private IP in your VNet |
-| **DNS** | resolves.blob.core.windows.net | Private DNS zone (custom) |
+| **DNS** | Standard service hostname resolves publicly | `privatelink.blob.core.windows.net` maps the Blob service name to the private endpoint IP |
 | **Cost** | No separate service-endpoint charge | Private Link pricing varies by region and data processed; check current pricing |
 | **Configuration complexity** | Simple (enable on VNet) | Complex (need private DNS) |
 | **Access from on-premises** | Via ExpressRoute | Via ExpressRoute/VPN + Private DNS |

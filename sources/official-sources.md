@@ -30,6 +30,8 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Shared Access Signatures](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)
 - [Private Endpoints for Storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-private-endpoints)
 - [Service Endpoints for Storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security)
+- [Blob Object Replication](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview)
+- [Azure Files Identity-Based Authentication](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-active-directory-overview)
 
 ### Compute
 
@@ -43,6 +45,9 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Container Instances](https://learn.microsoft.com/en-us/azure/container-instances/)
 - [Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/)
 - [App Service](https://learn.microsoft.com/en-us/azure/app-service/)
+- [App Service Backup](https://learn.microsoft.com/en-us/azure/app-service/manage-backup)
+- [App Service TLS Certificates](https://learn.microsoft.com/en-us/azure/app-service/configure-ssl-certificate)
+- [App Service Deployment Slots](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots)
 
 ### Networking
 
@@ -61,6 +66,7 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Application Gateway](https://learn.microsoft.com/en-us/azure/application-gateway/)
 - [Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/bastion-overview)
 - [Network Watcher](https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview)
+- [Virtual Network Flow Logs](https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview)
 - [Public IP Addresses](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses)
 
 ### Monitoring
@@ -68,6 +74,7 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Azure Monitor Documentation](https://learn.microsoft.com/en-us/azure/azure-monitor/overview)
 - [Azure Monitor Metrics](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/metrics-overview)
 - [Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-platform-logs)
+- [Azure Monitor Log Queries](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-query-overview)
 - [Log Analytics Workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview)
 - [Alert Rules](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview)
 - [Action Groups](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups)
@@ -78,7 +85,10 @@ This document lists the authoritative Microsoft documentation sources used to ve
 
 - [Azure Backup Documentation](https://learn.microsoft.com/en-us/azure/backup/backup-overview)
 - [Recovery Services Vault](https://learn.microsoft.com/en-us/azure/backup/backup-azure-recovery-services-vault-overview)
+- [Backup Vault](https://learn.microsoft.com/en-us/azure/backup/backup-vault-overview)
+- [Azure Backup Monitoring](https://learn.microsoft.com/en-us/azure/backup/backup-azure-monitoring-built-in-monitor)
 - [Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview)
+- [Azure-to-Azure Site Recovery Architecture](https://learn.microsoft.com/en-us/azure/site-recovery/azure-to-azure-architecture)
 - [Backup Policies](https://learn.microsoft.com/en-us/azure/backup/backup-configure-vault-standard)
 
 ## Learning Paths

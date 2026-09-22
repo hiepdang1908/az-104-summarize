@@ -287,7 +287,7 @@ Result: Alice is Contributor in ALL resource groups in that subscription
 Result: Alice is Contributor for ALL resources in ALL RGs
 ```
 
-**Exam trap:** A normal lower-scope role assignment does not subtract permissions inherited from a higher scope. Azure RBAC deny assignments are exceptional system-managed controls, not the usual way to design least privilege. Grant the narrowest role at the narrowest scope instead.
+**Scope rule:** Azure RBAC grants accumulate down the hierarchy. A role assignment at a child scope can add permissions there, but a normal child-scope assignment cannot subtract a grant inherited from a parent scope. Azure RBAC deny assignments are exceptional system-managed controls, not the normal least-privilege design tool. Grant the narrowest role at the narrowest scope that satisfies the requirement.
 
 ---
 
@@ -488,10 +488,16 @@ Effect: Deny (block creation if not compliant)
 
 - **Audit** — Log non-compliance, allow resource creation
 - **Deny** — Block resource creation if non-compliant
+- **Append** — Add fields to the request when the definition supports it; use `Modify` for modern property/tag remediation patterns
 - **Modify** — Automatically change properties to comply
 - **DeployIfNotExists** — Automatically add missing configuration
+- **AuditIfNotExists** — Audit when a related resource or configuration is absent
 
-**Choose the effect:** Use `Audit` to discover impact before enforcement, `Deny` when a configuration must never be created, and `Modify` or `DeployIfNotExists` only when the definition supports remediation and the assignment identity has the required permissions. An initiative groups related definitions; an exemption documents an approved exception at an allowed scope.
+**Policy building blocks:** A definition contains the rule and optional parameters. An initiative groups definitions under one assignment. An assignment applies a definition or initiative at a management group, subscription, resource group, or resource scope. An exclusion removes a child scope from the assignment; an exemption records an approved waiver for resources that remain in scope.
+
+**Choose the effect:** Use `Audit` to discover impact before enforcement, `Deny` when a configuration must not be created, and `AuditIfNotExists` when the requirement depends on a related resource or setting. Use `Modify` or `DeployIfNotExists` only when the definition supports remediation. Those effects can require a managed identity on the assignment and role permissions at the remediation scope; existing resources are remediated by a remediation task, not merely by creating the assignment.
+
+**Decision rule:** Use an initiative for a repeatable standard such as a production baseline. Use an exclusion when a child scope should not inherit that assignment. Use an exemption for a documented, time-bounded exception to a requirement that still applies at the resource's scope.
 
 ### Policy vs. RBAC
 

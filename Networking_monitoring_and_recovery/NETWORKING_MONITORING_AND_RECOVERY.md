@@ -197,6 +197,8 @@ Small charge for cross-region peering
 - **Allow gateway transit** — Use VPN gateway for on-premises access
 - **Use remote gateway** — Use peer's VPN gateway
 
+**Gateway transit dependency:** On the VNet that owns the gateway, enable gateway transit. On the peered VNet that consumes it, enable use remote gateways. A VNet can use only one remote gateway, and it cannot use its own gateway at the same time. Peering remains non-transitive: gateway transit provides a path to the gateway, not automatic transitive peering between every VNet.
+
 ### Key Rules
 
 ```text
@@ -248,10 +250,12 @@ Packet arrives
     ↓
 Check inbound rules (priority 100, 101, 102, ...)
     ↓
-First matching rule wins
+First matching rule wins; lower priority numbers are evaluated first
     ↓
 Action: Allow or Deny
 ```
+
+**Stateful behavior:** An NSG evaluates a new flow against its five-tuple (source, source port, destination, destination port, and protocol). When it allows the initiating flow, response traffic is automatically allowed for that established flow; a reverse rule is not required solely for the response. Rules affect new connections, not an already established connection.
 
 **Default rules (cannot be deleted):**
 
@@ -277,7 +281,7 @@ Applies to all VMs/resources in subnet
 **Both:**
 
 ```
-Packet filtered by both (most restrictive wins)
+Packet must be allowed by both the subnet and NIC NSG. Evaluate the matching rules at each association; a deny at either layer blocks a new flow.
 ```
 
 ### Effective Security Rules
@@ -725,6 +729,20 @@ Azure Private DNS Zone: internal.contoso.com
 Resolution: Via VPN/ExpressRoute
 ```
 
+**VNet links:** Link a private DNS zone to every VNet that must resolve its records. Enable auto-registration only for a VNet whose VM records should be automatically created in that zone. For Private Link, use the service-specific `privatelink` private DNS zone name; private endpoint creation can create and manage the matching A record. On-premises clients require a DNS forwarding design to resolve that private zone.
+
+## VPN Gateway
+
+Azure VPN Gateway provides encrypted connectivity through a virtual network gateway deployed in the dedicated `GatewaySubnet`. It requires a public IP address for the gateway and, for on-premises connections, a local network gateway that represents the on-premises address prefixes and VPN device public IP.
+
+| Connection | Purpose | Peer |
+|---|---|---|
+| **Point-to-Site (P2S)** | Individual user/device connection to a VNet | VPN client |
+| **Site-to-Site (S2S)** | Persistent branch/on-premises network connection | On-premises VPN device through a local network gateway |
+| **VNet-to-VNet** | Encrypted connection between Azure VNets | Another Azure VPN gateway |
+
+Use VNet peering for Azure-to-Azure private connectivity when its constraints fit. Use VPN Gateway when encrypted tunnel connectivity to an on-premises network, remote clients, or a gateway-based VNet connection is required.
+
 ---
 
 ## Load Balancer
@@ -997,16 +1015,17 @@ AzureActivity
 | summarize count() by ResourceType
 ```
 
-**Example 2: Troubleshoot VM connectivity - failed connections**
+**Example 2: Investigate recent failed Azure control-plane operations**
 
 ```kusto
-AzureDiagnostics
-| where ResourceType == "NETWORKSECURITYGROUPS"
-| where OperationName contains "NetworkSecurityGroupFlowLogEvent"
-| where FlowStatus_s == "D" (D = Denied)
-| summarize TotalDenied = count() by SourceIP_s, DestinationIP_s
-| top 10 by TotalDenied
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where ActivityStatusValue == "Failure"
+| project TimeGenerated, Caller, OperationNameValue, ResourceGroup, ResourceId, Properties
+| order by TimeGenerated desc
 ```
+
+**Flow-log note:** Virtual network flow logs are stored as JSON flow tuples, not as a universal `AzureDiagnostics` schema. For a network-flow investigation, first configure virtual network flow logs, then parse the flow-log records in the selected storage or analytics destination. A denied tuple has flow state `D`.
 
 **Example 3: Monitor application errors over time**
 
@@ -1221,6 +1240,8 @@ Network Watcher
 └── VPN Troubleshoot: VPN connection issues
 ```
 
+**Flow-log currency:** Network Security Group flow logs are retiring and no longer support new creation. Use virtual network flow logs for new designs. They collect Layer 4 IP-flow records at VNet scope and can show the rule that allowed or denied a flow. Do not enable both types over the same workload unless duplicate logging and cost are intentional.
+
 ### Connection Monitor
 
 ```text
@@ -1334,16 +1355,16 @@ Monthly backups: Keep 12 months
 Yearly backups: Keep 5 years
 ```
 
+**Retention decision:** A policy controls when recovery points are created and how long each retention tier is retained. Daily, weekly, monthly, and yearly rules serve different recovery and compliance needs; they do not create the same number of restore points. Longer retention increases protected-storage consumption. Use soft delete and immutable-vault features when supported and required, but do not confuse either with a backup schedule.
+
 ### Backup and Restore Flow
 
 ```text
-1. Enable backup on VM
-2. First backup: Full backup (entire disk)
-3. Subsequent: Incremental (only changes)
-4. Stored in Recovery Services Vault
-5. If need restore: Choose point-in-time
-6. Download backup: Restore disk
-7. Create VM from disk: Resume operations
+1. Select a supported workload and vault.
+2. Assign a backup policy and enable protection.
+3. Azure creates recovery points according to the workload's backup implementation and policy.
+4. When restoring, choose the recovery point and the restore option supported by that workload.
+5. Validate the restored data or workload before returning it to service.
 ```
 
 ---
@@ -1368,6 +1389,8 @@ If primary fails:
 ├── Application runs in West US
 ├── Traffic redirected
 ```
+
+**Azure-to-Azure prerequisites:** Replication applies only to supported source and target regions, VM configurations, operating systems, disks, and networking. Azure VMs use managed disks for this scenario. The source VM needs outbound connectivity for Site Recovery and replication traffic, and the target region needs sufficient quota and supported target resources. Site Recovery can create or use target resource groups, virtual networks, and replica disks; validate them before enabling replication.
 
 ### Key Concepts
 
@@ -1415,6 +1438,19 @@ Original primary becomes primary again
     ↓
 Secondary continues as backup
 ```
+
+**Failover choices:**
+
+| Operation | Purpose | Production impact |
+|---|---|---|
+| **Test failover** | Validate a recovery point and recovery plan | Uses an isolated test network; production replication continues |
+| **Planned failover** | Controlled migration when the source is available | Shuts down the source before failover to minimize data loss |
+| **Unplanned failover** | Recover after an outage | Uses the selected available recovery point; data loss can occur within the achieved RPO |
+| **Reprotect and fail back** | Return protection and later workload operation to the original region | Requires the workload to be stable in the recovery direction |
+
+### Backup Monitoring, Reports, and Alerts
+
+Use the Resiliency experience, Recovery Services vault, or Backup vault to inspect protected items, the latest restore point, and backup-job status. Configure alerts for job failures and other supported backup events, then route notifications through Azure Monitor action groups where applicable. Reports and metrics reveal historical protection and job health; they do not replace checking that a current recovery point exists for a critical workload.
 
 ### RTO and RPO
 

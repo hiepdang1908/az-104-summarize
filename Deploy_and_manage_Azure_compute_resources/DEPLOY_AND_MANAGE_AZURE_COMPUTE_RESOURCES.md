@@ -68,6 +68,8 @@ Deployment
 
 **What it is:** JSON file declaring Azure resources
 
+**Interpretation rule:** The resource `type`, `apiVersion`, `name`, `location`, `sku`, and `properties` describe the desired resource state. `dependsOn` controls order only when Azure Resource Manager cannot infer a dependency. Use an API version that supports the properties used by the template; copied export templates often need review before reuse.
+
 **Structure:**
 
 ```json
@@ -168,6 +170,8 @@ Parameterize hardcoded values
     ↓
 Redeploy in another environment
 ```
+
+**Constraint:** An exported template is a starting point, not a production-ready source of truth. It can contain hard-coded values, generated resource names, secure settings that cannot be exported, and resource definitions that must be separated or parameterized before redeployment.
 
 ### Deployment
 
@@ -921,6 +925,8 @@ With cert: HTTPS (encrypted, browser shows green lock)
 | **Purchased certificate** | $10-100/yr | Manual upload | Manual |
 | **Self-signed** | Free | Automatic | Manual |
 
+**Certificate prerequisites:** A TLS binding for a custom domain requires an App Service plan in Basic, Standard, Premium, or Isolated. The free App Service managed certificate also requires the domain to be mapped to the app. It does not support wildcard names, private DNS, export, or App Service Environment. A root-domain managed certificate requires the app to remain publicly reachable for certificate issuance and renewal.
+
 **App Service Managed Certificate (simplest):**
 
 ```text
@@ -978,21 +984,23 @@ Result: All traffic forced to HTTPS
 - Deployment settings
 - SSL certificates
 
-**Prerequisites:**
+**Backup choices:**
 
-- Standard tier or higher (not Free/Basic)
-- Storage account for backups
-- Backup policy with retention period
+| Type | Supported tiers | Storage account | Retention |
+|---|---|---|---|
+| **Automatic backup** | Basic, Standard, Premium, Isolated | No customer storage account | Platform-managed, 30 days |
+| **Custom backup** | Basic, Standard, Premium, Isolated | Required; SAS-based authorization | On-demand or scheduled; configure retention or retain on-demand backup indefinitely |
+
+Basic supports backup and restore for the production slot only. Free and Shared plans do not support App Service backup and restore. Custom backup support for linked databases is being retired; use the database service's native backup capability for database protection.
 
 **Backup configuration:**
 
 ```text
 1. In App Service: Backups
-2. Click "Configure backup"
-3. Select storage account (same region recommended)
-4. Set backup frequency: Daily or weekly
-5. Set retention: 1 day to 30 days
-6. Save
+2. Choose custom backup and select a Storage account/container that supports SAS authorization
+3. Configure on-demand or scheduled backups and the retention requirement
+4. For a firewall-protected account, use the documented VNet-integration backup path when its prerequisites are met
+5. Save and verify a backup job completes
 ```
 
 **Example backup policy:**
@@ -1022,21 +1030,14 @@ Azure restores: App + files + config to that point in time
 Result: Application back to working state
 ```
 
-**Database backups:**
-
-```text
-If app connected to SQL Database:
-├── SQL Database has separate backup (automatic, geo-redundant)
-├── App Service backup includes connection strings
-└── Restore app, then restore database separately
-```
+**Restore boundary:** Restoring stops the target app or slot while the restore runs. Restore to a deployment slot first when minimizing production downtime matters, then swap after validation. App networking, managed identities, TLS/SSL, scale settings, and alerts are not automatically restored by automatic backups; verify the selected restore options and protect databases with their native service backup.
 
 **Cost:**
 
 ```text
 Backup storage: Charged by storage account
-    ├── Daily backup = 30 copies per month
-    └── Cost: ~$0.50-5/month (storage size dependent)
+    ├── Cost depends on backup size, frequency, retention, and storage pricing
+    └── Check the current regional pricing before estimating cost
 ```
 
 ### Deployment Slots
@@ -1066,6 +1067,8 @@ Slots:
 4. New code now live (instant swap)
 5. Old code rolled back in Staging if needed
 ```
+
+**Swap behavior:** Production stays online while the source slot is prepared and warmed. App settings and connection strings normally swap, but can be marked as deployment-slot settings to stay with their slot. Managed identities, custom domains, scale settings, VNet integration, and several platform settings are slot-specific and do not swap. Do not assume every configuration value follows the code.
 
 **Cost:**
 
@@ -1203,7 +1206,7 @@ Use: Bicep (simpler to read/maintain)
 |---|---|---|
 | **Scope** | One datacenter | Multiple datacenters |
 | **Resilience** | Hardware failure | Datacenter failure |
-| **SLA** | 99.95% | 99.99% |
+| **Availability basis** | Fault and update domain distribution | Physical zone distribution within one region |
 | **Cost** | Free | Possible data transfer costs |
 
 ### Scale Up vs. Scale Out
@@ -1291,7 +1294,7 @@ Result:
 | **VM Size** | Choose CPU/RAM | Match workload | SKU naming | D2s_v3 format |
 | **Managed Disk** | Persist data | Replace storage account | Unmanaged | Azure-managed replication |
 | **Availability Set** | Logical redundancy | Same datacenter needed | Zone | Fault/update domains |
-| **Availability Zone** | Physical redundancy | Multi-datacenter | Set | 99.99% SLA |
+| **Availability Zone** | Physical redundancy | Multi-datacenter | Set | Verify current SLA eligibility for the architecture |
 | **Scale Set** | Auto-scaling VMs | Load changes | Manual | Spread across zones |
 | **ACR** | Image repository | Store container images | Docker Hub | Private registry |
 | **ACI** | Serverless containers | Quick jobs | Container Apps | No infrastructure |
@@ -1317,8 +1320,8 @@ Result:
 - Zones spread VMs across physical datacenters
 
 **Availability:**
-- Availability Set = logical, same datacenter, 99.95%
-- Availability Zone = physical, separate datacenters, 99.99%
+- Availability Set = logical fault/update-domain distribution in one datacenter
+- Availability Zone = physical separation across datacenters in one region
 - Scale Set = auto-scaling instances
 
 **Containers:**

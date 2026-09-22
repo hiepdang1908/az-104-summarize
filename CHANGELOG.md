@@ -2,6 +2,19 @@
 
 All notable changes to this knowledge-only AZ-104 repository are recorded here.
 
+## [2.2] - 2026-09-22
+
+### Corrected and strengthened
+
+- Added Azure Policy definitions, initiatives, assignments, exclusions, exemptions, current effects, and remediation identity boundaries.
+- Added Azure Files SMB identity-source selection, share-level authorization, file/directory authorization, managed-identity distinction, and network dependency guidance.
+- Added current Blob object-replication prerequisites, supported data types, topology constraints, and redundancy comparison.
+- Corrected App Service backup support to include Basic, distinguished automatic and custom backups, and documented restore, certificate, and deployment-slot constraints.
+- Clarified Network Security Group statefulness and combined NIC/subnet evaluation; added VNet peering gateway transit, private DNS linking, VPN Gateway connection types, and current virtual network flow-log guidance.
+- Replaced schema-dependent flow-log KQL with valid Azure Activity KQL and clarified how virtual network flow-log data is represented.
+- Added workload-aware Azure Backup recovery, monitoring, reporting, alerting, and Azure Site Recovery prerequisite/failover guidance.
+- Updated the objective matrix to use knowledge-only completion criteria. It currently records 23 COMPLETE and 59 PARTIAL objectives; all 82 current blueprint objectives remain mapped.
+
 ## [2.1] - 2026-09-22
 
 ### Corrected

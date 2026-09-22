@@ -367,6 +367,8 @@ Secondary Region (West US)
 | GZRS | ✅ | ✅ | Only via failover | $$$$ |
 | RA-GZRS | ✅ | ✅ | ✅ Without failover | $$$$ |
 
+**Decision boundary:** Redundancy copies data; it does not provide an application failover plan or a point-in-time recovery point. Choose ZRS for resilience to an availability-zone failure in the primary region. Choose GRS or RA-GRS for asynchronous replication to a paired secondary region, understanding that the primary replica is LRS. Choose GZRS or RA-GZRS when the primary region also requires zone redundancy. Read access to the secondary is an RA option, not an automatic write failover.
+
 ---
 
 ## Storage Authentication and Authorization
@@ -834,13 +836,28 @@ Linux VM:
 
 ### Identity-Based Authentication
 
-**What it means:** Use Entra ID or on-premises AD instead of storage key
+**What it means:** Use Kerberos-based identity authentication for SMB Azure file shares instead of the storage account key. It is separate from using an account key or SAS and is not supported for NFS file shares.
 
-**Requirements:**
+**Supported identity sources for SMB:**
 
-- Configure a supported identity source and Azure Files authentication option for the account and protocol.
-- Assign an Azure Files data-plane role at the required scope.
-- Apply file and directory ACLs where the selected authentication method uses them.
+| Identity source | Best fit | Important dependency |
+|---|---|---|
+| **On-premises Active Directory Domain Services (AD DS)** | Existing AD DS environment | Hybrid users must be synchronized to Microsoft Entra ID; clients need domain-controller connectivity. |
+| **Microsoft Entra Domain Services** | Managed domain in Azure | Clients need connectivity to and usually membership in the managed domain. |
+| **Microsoft Entra Kerberos** | Microsoft Entra-joined cloud-first or hybrid Windows clients | Cloud-only or hybrid identities are supported; Linux user authentication is not supported. |
+
+Only one user identity source is configured per storage account and applies to all its file shares. A managed identity can separately provide keyless SMB access for supported Azure workloads; it does not replace the user identity-source choice.
+
+**Access layers:**
+
+| Layer | Decision it answers | Example |
+|---|---|---|
+| **Authentication** | Can this identity obtain a Kerberos ticket for SMB? | AD DS, Entra Domain Services, or Entra Kerberos |
+| **Share-level authorization** | Can the identity access this share? | `Storage File Data SMB Share Contributor` role |
+| **File and directory authorization** | What can the identity do after entering the share? | NTFS ACLs where supported by the chosen identity source |
+| **Network access** | Can the client reach the share endpoint? | Private Endpoint, firewall, DNS, and SMB connectivity |
+
+Cloud-only Microsoft Entra users do not automatically work with every Azure Files identity configuration. Select an identity source that supports the clients and identities in use, then configure all four layers.
 
 **Process:**
 
@@ -988,6 +1005,23 @@ Result: Async copy of all blob changes
 ```
 
 **Important:** Replication is **async** (eventual consistency, not immediate)
+
+### Object Replication Prerequisites and Limits
+
+Object replication copies **block blobs** asynchronously between a source and destination storage account. It is configured by policy and rules, not by the account redundancy setting.
+
+- Enable **change feed** on the source account and **blob versioning** on both accounts.
+- Use supported General-purpose v2 or premium block blob accounts. Page blobs, append blobs, snapshots, and accounts with hierarchical namespace enabled are not supported.
+- Create the source and destination containers before creating a rule. The destination is read/delete capable but does not accept writes while its replication rule is active.
+- Source and destination can be in the same or different regions, subscriptions, or Microsoft Entra tenants when the applicable cross-tenant setting permits it. They are not required to be in the same resource group or subscription.
+- Archive-tier blobs are not replicated. Changing a blob's tier does not replicate its tier selection.
+
+| Feature | Azure Storage redundancy | Object replication |
+|---|---|---|
+| **Who controls copies** | Azure, based on the account redundancy option | Administrator, using source/destination rules |
+| **Copy target** | Azure-managed secondary replica for geo-redundant options | A separate destination storage account and container |
+| **Data model** | Account-level durability | Asynchronous block-blob replication with versioning |
+| **Use when** | The account needs durability/resilience | Specific blob data must be distributed or processed in another account/region |
 
 ---
 

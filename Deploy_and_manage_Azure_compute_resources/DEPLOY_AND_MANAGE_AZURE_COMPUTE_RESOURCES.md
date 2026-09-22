@@ -147,6 +147,8 @@ output vmId string = vm.id
 - Functions and loops built-in
 - Easier to read and maintain
 
+**Modify or convert:** Update Bicep parameters, resource properties, modules, and symbolic references, then validate the file before deployment. To convert an ARM JSON template, use the Bicep decompiler (for example, `az bicep decompile --file template.json`) as a starting point, then review and refactor the generated Bicep before using it in production.
+
 ### ARM Template Export
 
 **How it works:**
@@ -327,25 +329,27 @@ Result: Errors and warnings before deployment
 
 ### VM Sizing
 
-**Size categories:**
+**Common size families:**
 
-| Category | CPU | RAM | Network | Use Case |
-|---|---|---|---|---|
-| **B-series** | 1-4 | 0.5-16 GB | Low | Dev/test, light workloads |
-| **D-series** | 2-64 | 4-256 GB | Medium | General purpose |
-| **E-series** | 2-128 | 16-3500 GB | High | Memory-intensive |
-| **F-series** | 2-72 | 4-192 GB | Medium | CPU-intensive |
-| **M-series** | 2-416 | 32-11400 GB | High | Enterprise, SAP |
-| **H-series** | 8-120 | 16-240 GB | High | HPC |
+| Family | Design focus | Typical use case |
+|---|---|---|
+| **B-series** | Burstable CPU | Dev/test and variable light workloads |
+| **D-series** | Balanced CPU and memory | General-purpose workloads |
+| **E-series** | High memory-to-CPU ratio | Memory-intensive applications and databases |
+| **F-series** | High CPU-to-memory ratio | Compute-intensive workloads |
+| **M-series** | Very large memory configurations | Large databases and enterprise applications |
+| **H-series** | High-performance computing | Scientific and engineering workloads |
+
+Available sizes, processors, disk support, quotas, and prices vary by family, generation, and region. Select from the sizes currently available for the target region and subscription.
 
 **Naming example:** `Standard_D2s_v3`
 
 ```text
-Standard = category (Standard vs Premium)
+Standard = Azure VM SKU prefix
 D = series (D-series)
-2 = number of vCPUs
-s = high I/O optimization
-v3 = generation (v1, v2, v3)
+2 = vCPU count for this SKU
+s = supports Premium Storage
+v3 = generation
 ```
 
 ### VM Disks
@@ -354,25 +358,23 @@ v3 = generation (v1, v2, v3)
 
 ```text
 ├── Contains operating system
-├── Max size: 2048 GiB (limited by OS)
 ├── Cannot be shared with other VMs
-└── Must be managed disk in production
+└── Current Azure VM deployments use managed OS disks; supported size depends on disk and VM generation
 ```
 
 **Data Disks:**
 
 ```text
 ├── Additional storage
-├── Can have multiple (up to 64)
-├── Can be shared between VMs (premium only)
-├── Sizes: 1 GiB - 32 TiB
-└── Can attach/detach while running
+├── Supported count and size depend on the VM size and disk type
+├── Some managed disk types support shared-disk configurations
+└── Attach/detach behavior depends on VM, disk, and guest OS support
 ```
 
 **Temporary Disk:**
 
 ```text
-├── Ephemeral storage on host hardware
+├── Ephemeral storage on host hardware when the selected VM size includes it
 ├── Not persisted (lost on stop/deallocate)
 ├── Fast access, no replication cost
 ├── Don't rely for persistent data
@@ -385,24 +387,25 @@ v3 = generation (v1, v2, v3)
 
 **Advantages:**
 
-- Azure handles replication/backup
+- Azure manages disk durability and platform replication; point-in-time backup is configured separately with Azure Backup
 - Simpler RBAC model
-- Better availability (regional/zone redundancy)
+- LRS and supported ZRS options let you match disk redundancy to the workload
 - Can be encrypted at rest
 
 **Disk types:**
 
-| Type | Performance | Cost | Use Case |
-|---|---|---|---|
-| **Standard HDD** | Low IOPS | Cheap | Dev/test, non-critical |
-| **Standard SSD** | Medium IOPS | Medium | General |
-| **Premium SSD** | High IOPS | Expensive | Database, high-traffic |
-| **Ultra Disk** | Extreme IOPS | Very expensive | High-performance database |
+| Type | Performance profile | Typical use case |
+|---|---|---|
+| **Standard HDD** | Lowest-cost disk option; latency-sensitive work is not the target | Infrequent access, dev/test, non-critical workloads |
+| **Standard SSD** | Balanced cost and performance | General workloads with moderate I/O |
+| **Premium SSD** | Lower latency and higher performance | Production and I/O-intensive workloads |
+| **Premium SSD v2** | Tunable performance independent of capacity | Production workloads needing flexible IOPS and throughput |
+| **Ultra Disk** | Configurable high IOPS and throughput | Data-intensive, latency-sensitive workloads |
 
 **Shared disks:**
 
 ```text
-Multiple VMs can attach same premium/ultra disk
+Multiple VMs can attach one supported managed data disk
     ↓
 Requires: Cluster-aware software (SQL Server, Oracle)
     ↓
@@ -421,12 +424,12 @@ Use case: Clustered databases requiring shared storage
 1 VM
     ↓
 If VM fails: Application down
-If host maintenance: Application down for ~1 hour
+If host maintenance affects the VM: Application can be unavailable
 ```
 
 **Cost:** Lowest
 
-**SLA:** 99.5% (99.5% uptime guaranteed by Microsoft)
+**Availability:** A single VM is a single point of failure. Any applicable SLA depends on the VM and disk configuration and the current Azure SLA terms.
 
 **When to use:** Non-critical workloads, dev/test
 
@@ -472,7 +475,7 @@ VMs in other update domains stay running during maintenance
 
 **Important:** Place two or more VMs in the availability set to distribute them across fault and update domains. VM sizes and current SLA eligibility depend on the deployed configuration; verify the current SLA rather than treating one percentage as universal.
 
-**Cost:** Only pay for VMs (availability set itself is free)
+**Cost:** The availability set has no separate resource charge; the VMs and related resources are still billed.
 
 **When to use:** On-premises-like setup, same datacenter acceptable
 
@@ -577,11 +580,11 @@ Web application with variable traffic
 Can tolerate downtime during host maintenance?
     ↓ NO
     Must use: Availability Set or Zone
-    
+
 Can tolerate Zone 1 complete failure?
     ↓ NO
     Must use: Availability Zone (spread across multiple zones)
-    
+
 Load changes frequently?
     ↓ YES
     Must use: VM Scale Set (auto-scale capability)
@@ -629,7 +632,7 @@ Container runs (serverless, no VM management)
 - **Serverless** — No VM to manage
 - **On-demand execution** — Run a container group without managing VMs; create a new group when more independent capacity is required
 - **Isolated** — Each container in separate environment
-- **Per-second billing** — Minimal cost
+- **Consumption billing** — Charges depend on requested CPU, memory, and execution duration; verify current regional pricing
 
 **Use case:**
 
@@ -654,11 +657,11 @@ Platform handles: Scaling, networking, load balancing, monitoring
 
 **Features:**
 
-- **Auto-scaling** — Scale to zero or up to thousands
+- **Auto-scaling** — Scale to zero or out to the configured and service-supported replica limit
 - **Environment** — Managed compute with multiple apps
 - **Revisions** — Versioning and traffic splitting
 - **Dapr** — Distributed application runtime (service-to-service)
-- **Container workload profiles** — Choose spot or dedicated
+- **Container workload profiles** — Choose supported Consumption or Dedicated compute profiles for the workload
 
 **Comparison:**
 
@@ -667,7 +670,7 @@ Platform handles: Scaling, networking, load balancing, monitoring
 | **Management** | Minimal | Managed platform | Manual |
 | **Scaling** | Manual | Auto | Manual or custom |
 | **Networking** | Per-container | Environment-level | Cluster-level |
-| **Cost** | Per-second | Reserved CPU hours | Compute + storage |
+| **Cost model** | Requested resources and execution duration | Consumption or workload-profile resources | Cluster node resources plus supporting services |
 
 **When to use:**
 
@@ -692,12 +695,11 @@ CPU and memory combinations, quotas, regions, and pricing vary. Choose a support
 ```text
 Estimate application memory
     ↓
-├── Small app: 0.5 - 1 GB
-├── Medium app: 1 - 4 GB
-├── Large app: 4 - 16 GB
-├── Very large: 16+ GB
+├── Measure normal and peak CPU/memory usage
+├── Include runtime and initialization overhead
+├── Choose a supported resource combination
     ↓
-Add 20% overhead for OS/system
+Load-test and observe throttling, restarts, and latency
     ↓
 Set as container memory request
 ```
@@ -717,7 +719,7 @@ Configuration: Allow scale to zero
     ↓
 When no traffic: Scale down to 0 instances
     ↓
-Cost: $0 (except storage)
+Compute consumption can fall substantially; other configured resources can still incur charges
     ↓
 Tradeoff: A cold start can add latency on the first request; the duration depends on the image, workload profile, and initialization work.
     ↓
@@ -737,18 +739,18 @@ When deployed:
 ├── 3 AM (no traffic): 1 instance running
 ├── 9 AM (peak): Auto-scales to 8 instances
 ├── Evening: Auto-scales back to 2 instances
-├── Cost: Only pay for running instances
+├── Cost follows the selected plan, resources, replicas, and current pricing
 ```
 
 **Comparison:**
 
 | Aspect | ACI | Container Apps | AKS |
 |---|---|---|---|
-| **Sizing** | Per-container specified | Environment pool | Per-pod specified |
+| **Sizing** | Per-container specified | Per-replica resources within a supported workload profile | Per-pod requests/limits on cluster nodes |
 | **Auto-scaling** | None | Built-in | Via Horizontal Pod Autoscaler (HPA) |
-| **Scale to zero** | No | Yes | No (min 1 node) |
-| **Startup time** | Seconds | Seconds | Minutes (node provisioning) |
-| **Cost model** | Per-second | Per-instance per-second | Per VM per-hour |
+| **Scale to zero** | No built-in autoscale | Supported for eligible profiles and configurations | Requires workload and node-pool autoscaling configuration; limits apply |
+| **Startup time** | Workload dependent | Workload and profile dependent | Workload and node-capacity dependent |
+| **Cost model** | Requested container resources and duration | Selected plan, workload profile, replicas, and usage | Cluster node resources plus supporting services |
 
 ---
 
@@ -760,21 +762,20 @@ When deployed:
 
 **SKUs:**
 
-| SKU | Cost | Features | Scale |
-|---|---|---|---|
-| **Free** | $0 | Shared resources, 1 GB RAM | 1 instance |
-| **Shared** | $ | Shared resources, 1 GB RAM | 1 instance |
-| **Basic** | $$ | Dedicated, 1.75 GB - 7 GB RAM | Up to 3 instances |
-| **Standard** | $$$ | Dedicated, slots, scaling | Up to 10 instances |
-| **Premium** | $$$$ | Higher-capacity dedicated plan features | Verify current tier limits |
+| Tier family | Compute model | Typical capability boundary |
+|---|---|---|
+| **Free / Shared** | Shared compute | Development or evaluation; limited scale and features |
+| **Basic** | Dedicated compute | Entry dedicated hosting; backup is supported, but only for the production slot |
+| **Standard** | Dedicated compute | Adds production features such as deployment slots and autoscale |
+| **Premium** | Higher-performance dedicated compute | More scale and advanced production features |
+| **Isolated** | Dedicated App Service Environment | Network-isolated enterprise hosting |
 
 **Key concept:**
 
 ```text
-Plan: Standard_P1V2
-    ├── Cost: $145/month
-    ├── Instances available: 1-20
-    ├── Each instance: 1 vCPU, 3.5 GB RAM
+Plan: Selected App Service tier and worker size
+    ├── Cost depends on region, operating system, tier, size, and instance count
+    ├── Scale limits depend on the selected tier and current service limits
     │
     Apps running on this plan:
     ├── App 1 (web API)
@@ -958,7 +959,7 @@ With cert: HTTPS (encrypted, browser shows green lock)
 3. Click "Add binding"
 4. Select "Managed certificate"
 5. Save
-6. Azure automatically: Creates cert, renews yearly
+6. Azure automatically creates and renews the certificate while its prerequisites remain valid
 ```
 
 **Bring-your-own certificate:**
@@ -998,23 +999,23 @@ Result: All traffic forced to HTTPS
 
 ### App Service Backup
 
-**What it is:** Automated backup of app content and configuration
-
-**Backup contents:**
-
-- App files and configuration
-- Database content (if connected)
-- Deployment settings
-- SSL certificates
+**What it is:** Full offline backups of supported app content and restorable configuration. Backups are not incremental, and not every App Service setting is restored.
 
 **Backup choices:**
 
-| Type | Supported tiers | Storage account | Retention |
-|---|---|---|---|
-| **Automatic backup** | Basic, Standard, Premium, Isolated | No customer storage account | Platform-managed, 30 days |
-| **Custom backup** | Basic, Standard, Premium, Isolated | Required; SAS-based authorization | On-demand or scheduled; configure retention or retain on-demand backup indefinitely |
+| Feature | Automatic backup | Custom backup |
+|---|---|---|
+| **Supported plans** | Basic, Standard, Premium, Isolated | Basic, Standard, Premium, Isolated |
+| **Configuration** | Platform managed; no setup | User configured; on-demand or scheduled |
+| **Storage account** | No customer account required | Required in the same subscription; must support SAS-based authorization |
+| **Frequency** | Hourly; not configurable | Configurable, with a two-hour minimum interval and no more than 12 manual plus scheduled backups per day |
+| **Retention** | 30 days; platform thins older hourly recovery points | Scheduled retention is 0–30 days or indefinite; on-demand backups are retained indefinitely |
+| **Maximum backup size** | 30 GB | 10 GB total |
+| **Linked database** | Not included | Do not use for new database protection; use the database service's native backup |
+| **Download / partial backup** | Not downloadable; no partial backup | Stored as downloadable blobs; partial backup supported |
+| **VNet path** | Not supported | Supported when the documented VNet integration and storage firewall prerequisites are met |
 
-Basic supports backup and restore for the production slot only. Free and Shared plans do not support App Service backup and restore. Custom backup support for linked databases is being retired; use the database service's native backup capability for database protection.
+Basic supports backup and restore for the production slot only. Free and Shared plans do not support App Service backup and restore. New custom backup configurations no longer provide a durable strategy for linked databases, and existing linked-database backup support ends on March 31, 2028; use each database service's native backup capability.
 
 **Backup configuration:**
 
@@ -1026,19 +1027,6 @@ Basic supports backup and restore for the production slot only. Free and Shared 
 5. Save and verify a backup job completes
 ```
 
-**Example backup policy:**
-
-```text
-Frequency: Daily backup
-Retention: 30 days
-    ↓
-Result:
-├── Today: Backup created
-├── Yesterday: Previous backup retained
-├── 30 days ago: Backup retained
-├── 31 days ago: Backup deleted automatically
-```
-
 **Restore from backup:**
 
 ```text
@@ -1046,21 +1034,20 @@ App crashes or data corrupted
     ↓
 In App Service: Backups
     ↓
-Select backup date: "Restore from 2024-12-20 02:00 AM"
+Select the required recovery point
     ↓
 Azure restores: App + files + config to that point in time
     ↓
 Result: Application back to working state
 ```
 
-**Restore boundary:** Restoring stops the target app or slot while the restore runs. Restore to a deployment slot first when minimizing production downtime matters, then swap after validation. App networking, managed identities, TLS/SSL, scale settings, and alerts are not automatically restored by automatic backups; verify the selected restore options and protect databases with their native service backup.
+**Restore boundary:** Restore can overwrite an existing app or target a new app or slot. The target app or slot stops during restore, and restoring to an existing slot overwrites its file-system data. Restore to a deployment slot first when minimizing production downtime matters, then validate and swap. Networking, authentication, managed identities, custom domains, TLS/SSL, scale settings, alerts, and linked databases are not restored by automatic backup; protect databases with their native service backup.
 
 **Cost:**
 
 ```text
-Backup storage: Charged by storage account
-    ├── Cost depends on backup size, frequency, retention, and storage pricing
-    └── Check the current regional pricing before estimating cost
+Custom backup storage is charged through the selected storage account.
+Cost depends on backup size, frequency, retention, and current regional pricing.
 ```
 
 ### Deployment Slots
@@ -1230,7 +1217,7 @@ Use: Bicep (simpler to read/maintain)
 | **Scope** | One datacenter | Multiple datacenters |
 | **Resilience** | Hardware failure | Datacenter failure |
 | **Availability basis** | Fault and update domain distribution | Physical zone distribution within one region |
-| **Cost** | Free | Possible data transfer costs |
+| **Cost** | No separate availability-set charge | Possible inter-zone data-transfer charges; verify current pricing |
 
 ### Scale Up vs. Scale Out
 

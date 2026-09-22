@@ -188,7 +188,7 @@ Regional peering; check current data-transfer pricing
 ```text
 VNet-A (East US) ← Peering → VNet-B (West US)
     ↓
-Small charge for cross-region peering
+Data-transfer charges depend on the peering type, traffic direction, and current regional pricing
 ```
 
 ### Peering Properties
@@ -205,10 +205,10 @@ Small charge for cross-region peering
 1. Non-transitive
    VNet-A ←→ VNet-B ←→ VNet-C
    But A cannot talk to C directly
-   
+
 2. No overlapping address spaces
    Cannot peer VNet-A: 10.0.0.0/16 with VNet-B: 10.0.0.0/16
-   
+
 3. Bidirectional
    A can talk to B
    B can talk to A
@@ -473,7 +473,7 @@ Access: Granted
 - **Public endpoint** — Still uses service's public DNS name
 - **Private routing** — But traffic goes via Azure backbone (not internet)
 - **No private IP** — Service doesn't get private IP in your VNet
-- **Free** — No additional charges
+- **Pricing** — No separate service-endpoint charge; normal service and data-transfer charges can still apply
 
 ### Supported Services
 
@@ -790,6 +790,8 @@ If VM returns 200 OK: Healthy (receives traffic)
 If VM returns error: Unhealthy (traffic stopped)
 ```
 
+**Troubleshooting rule:** If a load-balanced service is unreachable, verify the frontend IP and rule, backend-pool membership, probe protocol/port/path, NSG rules, guest firewall, and that the application is listening. An unhealthy probe removes a backend from new load-balanced flows; it does not prove that the frontend rule or network path is correct.
+
 ### Outbound Rules
 
 ```text
@@ -840,7 +842,7 @@ Result: Path-based routing to different backends
 | **Routing** | Basic (port-based) | Advanced (path, host, header) |
 | **WAF** | No | Yes (optional) |
 | **Use case** | Generic protocols | Web apps, microservices |
-| **Cost** | Lower | Higher |
+| **Pricing model** | Load-balancer rules and processed data | Gateway capacity/usage, processed data, and optional WAF features |
 
 ---
 
@@ -853,32 +855,32 @@ When network issues occur, follow this systematic approach:
    Can client resolve hostname to IP?
    → Check: Azure DNS, Private DNS Zone
    → Tool: nslookup, dig, host command
-   
+
 2. ROUTING
    Can traffic reach destination network?
    → Check: Route table, system routes, UDRs
    → Tool: tracert, traceroute
-   
+
 3. NSG FILTERING
    Is traffic allowed by Network Security Groups?
    → Check: NSG inbound rules, effective rules
    → Tool: Portal effective rules view
-   
+
 4. FIREWALL / NVA
    Is appliance blocking traffic?
    → Check: Firewall rules, NVA configuration
    → Tool: Firewall logs
-   
+
 5. DESTINATION FIREWALL
    Is destination firewall blocking?
    → Check: Destination OS firewall, security software
    → Tool: Destination logs, firewall status
-   
+
 6. PRIVATE ENDPOINT
    If accessing via Private Endpoint:
    → Check: Private DNS resolution, endpoint status
    → Tool: dig, nslookup for private DNS
-   
+
 7. SERVICE CONFIGURATION
    Is destination service actually listening?
    → Check: Service status, listening ports
@@ -899,18 +901,18 @@ Metrics (numeric values)
 ├── Memory usage
 ├── Request count
 └── Response time
-    
+
 Logs (detailed events)
 ├── Application logs
 ├── Diagnostic logs
 ├── Audit logs
 └── Security logs
-    
+
 Alerts (notifications)
 ├── Threshold-based
 ├── Action groups
 └── Notifications (email, SMS, webhook)
-    
+
 Insights (curated views)
 ├── VM Insights
 ├── Container Insights
@@ -949,7 +951,7 @@ Azure Monitor
 | **Storage** | Time-series database | Log Analytics |
 | **Query** | Chart, alert threshold | KQL (Kusto Query Language) |
 | **Retention** | Platform-metric and log retention policies differ | Configurable by workspace, table, and retention tier; verify the current policy |
-| **Cost** | Per metric | Per GB ingested |
+| **Cost** | Depends on metric features and alerting | Depends on ingestion, retention, query, and export choices |
 | **Use case** | Real-time trends | Detailed investigation |
 
 ### Metrics
@@ -1387,6 +1389,15 @@ Yearly backups: Keep 5 years
 
 **Restore options vary by workload:** Azure VM backup can restore the VM, restore disks for manual VM creation, or provide file-level recovery where supported. Other protected workloads expose their own restore choices. Select the recovery point, destination, and overwrite behavior deliberately; restoring is not limited to replacing the original resource.
 
+### Azure Backup Monitoring, Alerts, and Reports
+
+- **Backup jobs:** Use Resiliency, the Recovery Services vault, or the Backup vault to inspect backup and restore jobs, their status, start and end times, and failure details. Confirm successful jobs and a usable recent recovery point; policy assignment alone does not prove recoverability.
+- **Backup alerts:** Azure Backup provides Azure Monitor-based built-in alerts for supported security events and backup or restore failures. Azure Monitor alert rules can also evaluate supported metrics or logs for custom conditions.
+- **Notifications:** An alert rule defines the condition. An Azure Monitor action group routes the fired alert to email, SMS, ITSM, webhook, Logic Apps, or other supported actions. Alert processing rules can add or suppress action groups for scoped alerts, such as during maintenance.
+- **Backup reports:** Backup Reports use Azure Monitor Logs and Azure workbooks. Configure vault diagnostic settings to send the required data to a Log Analytics workspace, then use reports for historical job trends, protected-item inventory, storage usage, policy and backup health, and operational monitoring.
+
+> **Requirement:** Operations must receive an email when backup failures occur. **Think:** Azure Backup monitoring/alerts + an Azure Monitor action group containing the email receiver.
+
 ---
 
 ## Azure Site Recovery
@@ -1399,11 +1410,11 @@ Replication service for regional disaster recovery
 Primary Region: East US
 ├── Application running
 ├── Site Recovery enabled
-    
+
 Secondary Region: West US
 ├── Replica (standby copy)
 ├── Stays in sync
-    
+
 If primary fails:
 ├── Failover to secondary
 ├── Application runs in West US
@@ -1467,10 +1478,6 @@ Secondary continues as backup
 | **Planned failover** | Controlled migration when the source is available | Shuts down the source before failover to minimize data loss |
 | **Unplanned failover** | Recover after an outage | Uses the selected available recovery point; data loss can occur within the achieved RPO |
 | **Reprotect and fail back** | Return protection and later workload operation to the original region | Requires the workload to be stable in the recovery direction |
-
-### Backup Monitoring, Reports, and Alerts
-
-Use the Resiliency experience, Recovery Services vault, or Backup vault to inspect protected items, the latest restore point, and backup-job status. Configure alerts for job failures and other supported backup events, then route notifications through Azure Monitor action groups where applicable. Reports and metrics reveal historical protection and job health; they do not replace checking that a current recovery point exists for a critical workload.
 
 ### RTO and RPO
 

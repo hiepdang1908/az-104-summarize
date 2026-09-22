@@ -758,7 +758,7 @@ Entra ID
 ├── Manages: users, groups, devices in the directory
 ├── Controls: who can sign in to Azure
 ├── Example: alice@contoso.com is a user
-    
+
 Azure RBAC
 ├── Manages: permissions for Azure resources
 ├── Controls: what users can do with resources

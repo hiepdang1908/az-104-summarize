@@ -412,19 +412,19 @@ Resource
 Need to store unstructured data (images, videos, backups)?
     ↓ YES → BLOB STORAGE
     ↓ NO
-    
+
 Need Windows file share (SMB) or Linux (NFS)?
     ↓ YES → AZURE FILES
     ↓ NO
-    
+
 Need message queue (application-to-application)?
     ↓ YES → QUEUE STORAGE
     ↓ NO
-    
+
 Need key-value table (structured)?
     ↓ YES → TABLE STORAGE
     ↓ NO
-    
+
 → Not a storage account scenario
 ```
 
@@ -439,15 +439,15 @@ Need workload inside Azure to access PaaS service securely?
         ↓ YES → PRIVATE ENDPOINT (+ Private DNS)
         ↓ NO → SERVICE ENDPOINT (uses service's public endpoint)
     ↓ NO
-    
+
 Need inbound traffic filtering?
     ↓ YES → NSG
     ↓ NO
-    
+
 Need to direct traffic to specific locations?
     ↓ YES → USER-DEFINED ROUTE
     ↓ NO
-    
+
 Need to connect two VNets?
     ↓ YES → VNET PEERING (Azure-to-Azure) or VPN (on-premises)
     ↓ NO → NOTHING (resources in same VNet can communicate by default)
@@ -461,15 +461,15 @@ Need to connect two VNets?
 Can your application tolerate downtime for OS patching?
     ↓ NO → MUST USE AVAILABILITY SET or ZONE or SCALE SET
     ↓ YES
-    
+
 Can your application tolerate datacenter failure?
     ↓ NO → MUST USE AVAILABILITY ZONE or SCALE SET across zones
     ↓ YES
-    
+
 Does load change frequently?
     ↓ YES → USE SCALE SET (auto-scale capability)
     ↓ NO → USE AVAILABILITY SET (manual + planned maintenance resilience)
-    
+
 Must be zone-redundant (physically separate locations)?
     ↓ YES → AVAILABILITY ZONE or ZONE-REDUNDANT (ZRS, GRS, GZRS)
     ↓ NO → AVAILABILITY SET (single datacenter)
@@ -483,15 +483,15 @@ Must be zone-redundant (physically separate locations)?
 Protecting against accidental deletion?
     ↓ YES → BACKUP (use Soft Delete for storage)
     ↓ NO
-    
+
 Protecting against regional datacenter failure?
     ↓ YES → SITE RECOVERY (replicate to secondary region)
     ↓ NO
-    
+
 Need to restore previous state of data?
     ↓ YES → BACKUP or VERSIONING/SNAPSHOTS
     ↓ NO
-    
+
 Need automated failover to secondary region?
     ↓ YES → SITE RECOVERY
     ↓ NO → BACKUP is sufficient

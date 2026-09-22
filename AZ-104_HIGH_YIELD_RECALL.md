@@ -181,7 +181,7 @@ Can modify resources?
 Must survive zone failure?
     ├─ YES → ZRS or GZRS
     ├─ NO → LRS or GRS
-    
+
 Must survive region failure?
     ├─ YES → GRS or GZRS or RA-GRS or RA-GZRS
     └─ NO → LRS or ZRS
@@ -195,7 +195,7 @@ Must survive region failure?
 Need private IP for resource?
     ├─ YES → Private Endpoint
     └─ NO → Service Endpoint
-    
+
 Need complex routing?
     ├─ YES → Route Table
     └─ NO → NSG suffices
@@ -316,9 +316,9 @@ When stuck on a scenario question:
 
 ## Remember for Test Day
 
-1. **RBAC vs. Policy** — appears in 15-20% of questions
-2. **NSG vs. Route** — appears in 10-15% of questions
-3. **Service Endpoint vs. Private Endpoint** — appears in 8-12% of questions
+1. **RBAC vs. Policy** — know what each controls
+2. **NSG vs. Route** — filtering is not routing
+3. **Service Endpoint vs. Private Endpoint** — public endpoint policy vs. private IP connectivity
 4. **Scope matters** — inheritance, don't forget
 5. **Networking is interconnected** — NSG + Route + DNS all matter
 6. **Redundancy options** — LRS, ZRS, GRS decisions are common

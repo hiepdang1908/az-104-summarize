@@ -22,12 +22,15 @@ This is an independent learning project. Microsoft Learn and current Azure produ
 ## Learning Path
 
 1. Read [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.md) for the cross-domain model.
-2. Study the domain guides:
+2. Use the [AZ-104 Objective Map](AZ-104_OBJECTIVE_MAP.md) to locate every current skill measured.
+3. Study the domain guides:
    - [Identities and governance](Manage_Azure_identities_and_governance/MANAGE_AZURE_IDENTITIES_AND_GOVERNANCE.md)
    - [Storage](Implement_and_manage_storage/IMPLEMENT_AND_MANAGE_STORAGE.md)
    - [Compute](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md)
    - [Networking, monitoring, and recovery](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)
-3. Review [AZ-104_HIGH_YIELD_RECALL.md](AZ-104_HIGH_YIELD_RECALL.md).
+4. Review [AZ-104_HIGH_YIELD_RECALL.md](AZ-104_HIGH_YIELD_RECALL.md).
+
+**Objective Map** — maps the current Microsoft AZ-104 skills measured to the exact repository sections that cover them.
 
 ## Current Blueprint Structure
 
@@ -61,6 +64,7 @@ A `CanNotDelete` lock prevents Azure Resource Manager deletion; a `ReadOnly` loc
 az-104-summarize/
 ├── README.md
 ├── AZ-104_MASTER_MENTAL_MAP.md
+├── AZ-104_OBJECTIVE_MAP.md
 ├── AZ-104_HIGH_YIELD_RECALL.md
 ├── Manage_Azure_identities_and_governance/
 ├── Implement_and_manage_storage/

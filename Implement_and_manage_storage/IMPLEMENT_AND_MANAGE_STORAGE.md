@@ -83,13 +83,22 @@ A storage account is:
 - **Default online access tier** — Hot, Cool, or Cold for new eligible block blobs. Archive is set per eligible blob; it is not an account default tier.
 - **Redundancy** — LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS
 
-### Storage Account SKUs
+### Storage Account Types, Performance, and SKUs
 
-| SKU | Details | Use Case |
-|---|---|---|
-| **Standard** | General-purpose, older | Most workloads |
-| **Premium** | Higher performance, IOPS focus | High-transaction scenarios |
-| **Blob Storage** | Optimized for blobs | Legacy, now use Standard |
+Do not treat these terms as interchangeable:
+
+- **Account type / kind** determines the supported storage services and features.
+- **Performance** is Standard or Premium. Standard general-purpose v2 is the normal choice for general workloads; Premium accounts are SSD-backed and workload-specific.
+- **Redundancy** is the replication choice, such as LRS or ZRS. In templates and tools, the SKU name combines performance and redundancy, for example `Standard_ZRS` or `Premium_LRS`.
+
+| Account type | ARM account kind | Performance | Supported workload | Typical choice |
+|---|---|---|---|---|
+| **General-purpose v2 (GPv2)** | `StorageV2` | Standard | Blobs, files, queues, and tables | Recommended for most Azure Storage workloads |
+| **Premium block blobs** | `BlockBlobStorage` | Premium | Block and append blobs | High transaction rates or consistently low blob latency |
+| **Premium file shares** | `FileStorage` | Premium | Azure Files only | High-performance SMB or NFS file shares |
+| **Premium page blobs** | `StorageV2` | Premium | Page blobs only | Specialized high-performance page-blob workloads |
+
+**Legacy boundary:** `BlobStorage` is the kind for a legacy Standard Blob Storage account; it is not the name of the current premium block-blob option. General-purpose v1 and legacy Blob Storage accounts should be migrated to GPv2 rather than selected for new deployments. Available redundancy options vary by account type and region, so validate the combination before deployment.
 
 ---
 
@@ -361,14 +370,14 @@ Secondary Region (West US)
 
 ### Comparison Table
 
-| Type | Zones Protected | Regions Protected | Secondary Readable | Cost |
+| Type | Zones Protected | Regions Protected | Secondary Readable | Main cost driver |
 |---|---|---|---|---|
-| LRS | No: one physical datacenter | N/A | N/A | $ |
-| ZRS | Yes: three or more zones in primary region | N/A | N/A | $$ |
-| GRS | ❌ (LRS primary) | ✅ | Only via failover | $$$ |
-| RA-GRS | ❌ (LRS primary) | ✅ | ✅ Without failover | $$$ |
-| GZRS | ✅ | ✅ | Only via failover | $$$$ |
-| RA-GZRS | ✅ | ✅ | ✅ Without failover | $$$$ |
+| LRS | No: one physical datacenter | N/A | N/A | Local copies only |
+| ZRS | Yes: three or more zones in primary region | N/A | N/A | Cross-zone replication |
+| GRS | No: LRS primary | Yes | Only after failover | Cross-region replication |
+| RA-GRS | No: LRS primary | Yes | Yes, without failover | Cross-region replication plus read access |
+| GZRS | Yes | Yes | Only after failover | Cross-zone and cross-region replication |
+| RA-GZRS | Yes | Yes | Yes, without failover | Cross-zone and cross-region replication plus read access |
 
 **Decision boundary:** Redundancy copies data; it does not provide an application failover plan or a point-in-time recovery point. Choose ZRS for resilience to an availability-zone failure in the primary region. Choose GRS or RA-GRS for asynchronous replication to a paired secondary region, understanding that the primary replica is LRS. Choose GZRS or RA-GZRS when the primary region also requires zone redundancy. Read access to the secondary is an RA option, not an automatic write failover.
 
@@ -422,18 +431,18 @@ An account key does not itself grant Azure Resource Manager permission such as `
 SAS Token = Credentials + Permissions + Expiration
 
 Example:
-https://myaccount.blob.core.windows.net/container/blob?sv=2024-02-04&se=2024-12-31T23:59:59Z&sp=r
-                                                       ↑                    ↑                    ↑
-                                                   API Version         Expiration            Permission (r=read only)
+https://myaccount.blob.core.windows.net/container/blob?sv=<version>&se=<expiry>&sp=r
+                                                       ↑            ↑       ↑
+                                                  API version      Expiration  Permission (read)
 ```
 
 **Types of SAS:**
 
 | Type | Who creates | Use case |
 |---|---|---|
-| **Account SAS** | Storage account owner | Full account delegation with limited permissions |
-| **Service SAS** | Storage account owner | Limited to one service (Blob, Queue, File, Table) |
-| **User delegation SAS** | A Microsoft Entra security principal authorized to request a user delegation key | Delegates Blob Storage access with Entra credentials |
+| **Account SAS** | Principal or service with Shared Key access | Scoped access across one or more storage services |
+| **Service SAS** | Principal or service with Shared Key access | Scoped access to a resource in one storage service |
+| **User delegation SAS** | Microsoft Entra principal authorized to request a user delegation key | Delegates supported storage data access using Entra credentials |
 
 **Permissions:**
 
@@ -449,12 +458,14 @@ l = List
 **Stored Access Policy:**
 
 ```text
-Define SAS once in policy
+Define start time, expiry, and permissions on a container, file share, queue, or table
     ↓
-Reference policy when creating SAS
+Reference the policy from one or more service SAS tokens
     ↓
-Revoke all SAS at once by deleting policy (faster than individual revocation)
+Change or delete the policy to update or revoke the associated service SAS tokens
 ```
+
+Stored access policies apply only to **service SAS**. Account SAS and user delegation SAS are ad hoc and cannot reference a stored access policy.
 
 **When to use:**
 
@@ -490,7 +501,7 @@ Assign: alice@contoso.com + "Storage Blob Data Reader" + storage account scope
 Result: alice can read blobs, cannot modify
 ```
 
-**When to use:** 
+**When to use:**
 
 - Applications running in Azure (use managed identity)
 - Human users accessing storage
@@ -658,7 +669,7 @@ Container: photos
     ├── 2024/vacation/beach.jpg
     ├── 2024/vacation/sunset.jpg
     └── 2024/mountain/peak.jpg
-    
+
 Container: documents
     ├── contract.pdf
     └── invoice.docx
@@ -766,25 +777,28 @@ Old version becomes current
 
 ### Soft Delete
 
-**What it does:** Recover accidentally deleted blobs within retention period
+**What it does:** Recover accidentally deleted blob data or containers within a configured retention period.
 
 **Retention period:** 1-365 days (configurable)
 
 **How it works:**
 
 ```text
-1. Blob deleted
-2. Blob marked as "soft deleted" (not immediately removed)
-3. Within retention period: Can recover
-4. After retention expires: Permanently deleted
+1. Enable the required protection at the storage account: blob soft delete, container soft delete, or both.
+2. Deleted data remains recoverable during the configured retention period.
+3. Restore the soft-deleted blob or the whole deleted container before retention expires.
+4. After retention expires, the data is permanently deleted.
 ```
+
+**Scope boundary:** Blob soft delete protects individual blobs, snapshots, and versions. Container soft delete is a separate setting that restores a deleted container and its contents to their state at deletion; the original container name must be available. Neither feature restores a deleted storage account—use an Azure Resource Manager lock to reduce that risk.
 
 **Difference from versioning:**
 
 ```text
-Soft Delete = recover accidentally deleted blobs
+Blob soft delete = recover deleted blob data
+Container soft delete = recover a deleted container and its contents
 Versioning = recover overwritten blobs
-Both = comprehensive data protection
+Together = more complete in-account data protection
 ```
 
 ### Snapshots
@@ -1150,7 +1164,7 @@ Result: Automated, efficient, resumable
 | Aspect | Service Endpoint | Private Endpoint |
 |---|---|---|
 | **IP** | Service's public IP | Private IP in your VNet |
-| **Cost** | Free | Paid |
+| **Cost** | No separate service-endpoint charge | Private Link charges depend on region and data processed |
 | **Setup** | Simple | Complex (Private DNS needed) |
 | **Access** | From specific VNets | From specific VNets + on-premises (via VPN) |
 
@@ -1227,7 +1241,7 @@ Result:
 | **Managed Identity** | Workload authentication | App needing storage access | SAS | No credentials to store |
 | **LRS** | One-datacenter redundancy | Cost-sensitive, reconstructible data | ZRS | Not availability-zone resilience |
 | **ZRS** | Zone redundancy | Zone resilience needed | LRS | Three or more zones in one region |
-| **GRS** | Region redundancy | Disaster recovery | GZRS | Secondary read-only |
+| **GRS** | Region redundancy | Disaster recovery | GZRS | Secondary is not readable before failover |
 | **RA-GRS** | Region + read secondary | DR + read failover | GRS | Secondary readable |
 | **GZRS** | Zone + region redundancy | High availability | GRS | Three zones + regions |
 | **Service Endpoint** | Network policy to public endpoint | VNet to service | Private Endpoint | Cheaper, simpler |
@@ -1250,7 +1264,7 @@ Result:
 **Redundancy:**
 - LRS = copies in one physical datacenter
 - ZRS = synchronous copies across availability zones
-- GRS = region copy (secondary read-only)
+- GRS = region copy (secondary is not readable before failover)
 - RA-GRS = region + secondary read
 - GZRS = zone + region (zones + regions)
 

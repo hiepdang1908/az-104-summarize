@@ -386,9 +386,18 @@ Primary Key: DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=abc
 - ✅ Read all data
 - ✅ Write all data
 - ✅ Delete all data
-- ✅ Modify account settings
+- ✅ Sign supported storage **data-plane** requests by using Shared Key authentication
 
-**Risk:** If key is exposed, attacker has full account access
+**Risk:** If key is exposed, the holder has broad data-plane access for the storage services supported by that key. Treat it as a high-value secret and rotate it safely.
+
+**Memorable boundary:**
+
+```text
+Storage account key → storage data access (Shared Key)
+Azure management RBAC → resource configuration through Azure Resource Manager
+```
+
+An account key does not itself grant Azure Resource Manager permission such as `Microsoft.Storage/storageAccounts/write`. A management role such as Storage Account Contributor controls account configuration; a storage key or a data-plane role controls storage data operations.
 
 **Rotation:**
 
@@ -600,19 +609,25 @@ Application access storage via 10.0.1.5 (private network)
 1. Create private endpoint for storage account
 2. Specify VNet and subnet
 3. Private IP created in that subnet
-4. Storage gets private IP, public endpoint disabled (optional)
-5. Create Private DNS Zone to resolve storage.blob.core.windows.net → 10.0.1.5
+4. Storage gets private IP; restrict or disable public network access separately if required
+5. Link the service-specific Private DNS zone, `privatelink.blob.core.windows.net`, to the VNet
 ```
 
 **Name resolution:**
 
 ```
-Application tries: storage.blob.core.windows.net
+Application tries: account.blob.core.windows.net
     ↓
-Private DNS Zone resolves → 10.0.1.5 (private IP)
+Public service FQDN resolves through the Private Link alias
+    ↓
+Private DNS Zone: privatelink.blob.core.windows.net
+    ↓
+Private DNS A record resolves → 10.0.1.5 (private IP)
     ↓
 Connection via private network
 ```
+
+**DNS rule:** Clients continue to use the normal service FQDN. The Private Link DNS chain directs the lookup to the service-specific `privatelink` zone, whose A record returns the private endpoint IP. Creating a private endpoint does not automatically disable the service public endpoint.
 
 ### Service Endpoint vs. Private Endpoint
 
@@ -948,10 +963,10 @@ Encrypted on disk: "a7x8m9n2k3j4h5g6..."
 
 **Important:** Enabled by default, cannot be disabled
 
-**Certificate management:**
+**Encryption key management:**
 
-- **Microsoft-managed keys** — Azure manages encryption certificates (default)
-- **Customer-managed keys** — You manage keys in Azure Key Vault (advanced)
+- **Microsoft-managed keys** — Azure manages the encryption keys (default)
+- **Customer-managed keys** — You manage encryption keys in Azure Key Vault or Managed HSM, subject to the storage feature's support and required permissions
 
 ### Encryption in Transit
 

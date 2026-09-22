@@ -100,6 +100,38 @@ Key properties:
 - **MFA status** — Multi-factor authentication requirement
 - **License** — What features the user can access
 
+### License Management
+
+Licenses can be assigned directly to a user or through a supported group. Before assigning a license, set the user's **usage location** because service availability is location-dependent. A direct assignment is appropriate for an exception; group-based licensing is easier to manage when users with the same role need the same service plan.
+
+| Task | Knowledge rule |
+|---|---|
+| Assign a license | Select a product license and optionally enable or disable individual service plans. |
+| Change a license | Add the new entitlement before removing the old one when uninterrupted service matters. |
+| Remove a license | Removes access to the licensed service; understand service data-retention behavior separately. |
+| License a group | Members inherit the selected licenses; nested groups are not processed for group-based licensing. |
+
+**Trap:** Azure RBAC grants access to Azure resources. A Microsoft 365 or Microsoft Entra license grants product/service entitlement; it does not grant Contributor, Reader, or other Azure RBAC permissions.
+
+### External Users (Microsoft Entra B2B)
+
+Microsoft Entra B2B collaboration lets an organization share apps and Azure resources with external partners while they authenticate using their own work, school, or supported external identity.
+
+```text
+Invite external user
+    ↓
+Guest user object created in the resource tenant
+    ↓
+Guest redeems invitation and signs in with home identity
+    ↓
+Assign group, application, or Azure RBAC access as needed
+```
+
+- A **Guest** user is normally an external B2B collaborator. A **Member** user is normally internal to the tenant; the user type alone is not an authorization grant.
+- After redemption, the guest has a user object in the resource tenant and can receive Azure RBAC role assignments at the appropriate scope, directly or through a group.
+- External collaboration and cross-tenant access settings control who can be invited and authenticated. Use guest lifecycle controls to remove access when the collaboration ends.
+- B2B collaboration is for workforce-to-partner access. It is not the same purpose as a customer-facing identity implementation.
+
 ### Groups
 
 Benefits:

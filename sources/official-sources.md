@@ -12,6 +12,9 @@ This document lists the authoritative Microsoft documentation sources used to ve
 ### Identity and Governance
 
 - [Microsoft Entra ID Documentation](https://learn.microsoft.com/en-us/azure/active-directory/)
+- [Manage Microsoft Entra User Profiles](https://learn.microsoft.com/en-us/entra/fundamentals/how-to-manage-user-profile-info)
+- [Group-Based Licensing](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-group-licenses)
+- [Microsoft Entra B2B Collaboration](https://learn.microsoft.com/en-us/entra/external-id/what-is-b2b)
 - [Azure Role-Based Access Control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
 - [Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/overview)
 - [Azure Resource Locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources)
@@ -78,6 +81,7 @@ This document lists the authoritative Microsoft documentation sources used to ve
 - [Log Analytics Workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview)
 - [Alert Rules](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview)
 - [Action Groups](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups)
+- [Alert Processing Rules](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-processing-rules)
 - [Azure Monitor Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/insights/insights-overview)
 - [Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
 

@@ -996,6 +996,8 @@ Tables:
 
 **KQL (Kusto Query Language):**
 
+**Common tables and prerequisites:** `AzureActivity` contains subscription control-plane events. Resource logs reach a Log Analytics workspace only after the resource's diagnostic settings send them there. `SecurityEvent` requires supported Windows security-event collection through Azure Monitor Agent and a data collection rule. Verify the available tables and columns in the target workspace before reusing a query.
+
 **Basic Query Structure:**
 
 ```kusto
@@ -1031,19 +1033,19 @@ AzureActivity
 
 ```kusto
 AppTraces
-| where SeverityLevel >= 2 (Error = 2, Critical = 3)
+| where SeverityLevel >= 2 // Error or Critical
 | summarize ErrorCount = count() by bin(TimeGenerated, 1h), Message
-| sort by TimeGenerated desc
+| order by TimeGenerated desc
 ```
 
 **Example 4: Audit failed login attempts**
 
 ```kusto
 SecurityEvent
-| where EventID == 4625 (Failed login)
+| where EventID == 4625 // Failed sign-in
 | summarize FailureCount = count() by TargetAccount, SourceIpAddress
 | where FailureCount > 5
-| sort by FailureCount desc
+| order by FailureCount desc
 ```
 
 **Example 5: Check ARM operation failures (troubleshooting deployments)**
@@ -1061,7 +1063,6 @@ AzureActivity
 | Operator | Purpose | Example |
 |---|---|---|
 | `where` | Filter rows | `where Severity == "Error"` |
-| `select` | Choose columns | `select TimeGenerated, Message` |
 | `project` | Choose/rename columns | `project Time=TimeGenerated, Msg=Message` |
 | `summarize` | Aggregate data | `summarize count() by Category` |
 | `sort` or `order` | Sort results | `sort by TimeGenerated desc` |
@@ -1111,14 +1112,20 @@ Action (what to do)
 ```text
 Alert fires
     ↓
-Processing rule 1: Is alert suppressed? (check)
+Processing rule evaluates scope, filters, and schedule
     ↓
-No: Send notifications
+Suppress action groups OR add action groups
     ↓
-Processing rule 2: Modify alert details (optional)
-    ↓
-Send to Action Group
+Alert remains visible even when notifications are suppressed
 ```
+
+| Component | Decides | Use it for |
+|---|---|---|
+| **Alert rule** | When a signal creates an alert | CPU threshold, failed log query, or activity event |
+| **Action group** | What happens after an alert fires | Email, SMS, push, webhook, automation, or integration |
+| **Alert processing rule** | Whether to suppress or add action groups to fired alerts | Maintenance windows, after-hours routing, or centralized action-group assignment |
+
+An alert processing rule can apply to resources, resource groups, or a subscription in the same subscription as the rule. Filters narrow the affected alerts and schedules can be one-time or recurring. Use it instead of disabling broadly scoped alert rules during maintenance; it does not change an alert's condition or arbitrary alert details.
 
 ### Action Group
 
@@ -1185,6 +1192,17 @@ Dashboard: Multi-VM view
     ├── Dependency visualization
     └── Performance comparison
 ```
+
+VM Insights uses Azure Monitor data collection and is intended for VM performance, health, and dependency visibility. Use the Performance view for CPU, memory, disk, and network analysis; use dependency data where it is enabled and supported. Do not confuse VM Insights with Azure Activity Log: Activity Log records control-plane events, while VM Insights analyzes monitored guest and platform performance data.
+
+### Storage and Network Monitoring
+
+| Area | What to review | Main tools |
+|---|---|---|
+| **Storage** | Availability, capacity, transactions, latency, errors, and throttling | Storage metrics, resource logs through diagnostic settings, and Azure Monitor workbooks |
+| **Network** | Reachability, routing, NSG decisions, topology, and flow behavior | Network Watcher, Connection Monitor, effective routes/security rules, and virtual network flow logs |
+
+Metrics are available without routing every platform metric to Log Analytics. Configure diagnostic settings when resource logs must be retained or queried in Log Analytics, Storage, or Event Hubs.
 
 ### Container Insights
 
@@ -1366,6 +1384,8 @@ Yearly backups: Keep 5 years
 4. When restoring, choose the recovery point and the restore option supported by that workload.
 5. Validate the restored data or workload before returning it to service.
 ```
+
+**Restore options vary by workload:** Azure VM backup can restore the VM, restore disks for manual VM creation, or provide file-level recovery where supported. Other protected workloads expose their own restore choices. Select the recovery point, destination, and overwrite behavior deliberately; restoring is not limited to replacing the original resource.
 
 ---
 

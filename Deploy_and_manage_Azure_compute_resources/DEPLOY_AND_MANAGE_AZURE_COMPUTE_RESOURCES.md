@@ -522,7 +522,7 @@ Availability Zone: Physical separation, different datacenters (same region)
 
 ### VM Scale Set
 
-**What it is:** Auto-scaling group of identical VMs
+**What it is:** Managed group of load-balanced VMs that can scale automatically or on a schedule.
 
 ```text
 Scale Set: WebServers
@@ -536,10 +536,19 @@ Scale Set: WebServers
 
 **Key features:**
 
-- **Identical VMs** — All instances are clones
+- **Consistent base configuration** — Scale-set instances normally start from the same image and model
 - **Auto-scaling** — Add/remove instances based on metrics
 - **Load balancing** — Built-in load balancer for distribution
 - **Zone redundancy** — Can spread across zones
+
+#### Orchestration Mode: Uniform vs. Flexible
+
+| Mode | Core idea | Choose when |
+|---|---|---|
+| **Uniform** | Scale-set-managed instances use a common VM model and configuration. | You need a homogeneous, large-scale stateless fleet. |
+| **Flexible** | Provides a scale-set management experience across broader VM scenarios and more flexible VM lifecycle/configuration. | You need features such as mixing VM types or Spot and on-demand VMs, or support for stateful/quorum-style workloads. |
+
+The orchestration mode is chosen when the scale set is created and cannot be changed later. Do not assume every scale set is a set of identical clones; that describes the common Uniform model, not every Flexible deployment.
 
 **Scaling rules:**
 

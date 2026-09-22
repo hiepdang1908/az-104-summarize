@@ -352,7 +352,7 @@ Learn these **together** — they are often confused:
 | **Authentication** | Verify identity | Authorization | Authentication answers "WHO?", Authorization answers "WHAT?" |
 | **Authorization (RBAC)** | Grant permissions | Policy | RBAC is identity-based access, Policy is configuration governance |
 | **Azure Policy** | Enforce configuration | RBAC | Policy makes rules about resources, not people |
-| **Resource Lock** | Prevent modification/deletion | Policy | Lock blocks anyone including Owners, Policy can be overridden |
+| **Resource Lock** | Prevent modification/deletion | Policy | Lock takes precedence over normal RBAC until a lock manager removes it; Policy can be exempted |
 | **Managed Identity** | Workload credential | Private Endpoint | Identity is authentication, network is connectivity |
 | **Service Endpoint** | Network policy to service | Private Endpoint | Service Endpoint allows traffic to public endpoint, Private Endpoint creates private IP |
 | **Private Endpoint** | Private IP to service | Service Endpoint | Private Endpoint + Private DNS resolves service name to private IP |
@@ -363,7 +363,7 @@ Learn these **together** — they are often confused:
 | **Scale Out** | More machines | Scale Up | Out/In = machine count, Up/Down = machine size |
 | **Availability Set** | Redundancy in one datacenter | Availability Zone | Availability Set uses fault/update domains, Availability Zone spans physical locations |
 | **Availability Zone** | Redundancy across locations | Availability Set | Zones are physically separate, Sets are logical groupings in one location |
-| **LRS** | Replication in one zone | GRS | LRS keeps copies local, GRS copies to secondary region |
+| **LRS** | Replication in one physical datacenter | GRS | LRS keeps copies local, GRS copies to secondary region |
 | **Backup** | Point-in-time restore | Site Recovery | Backup recovers deleted/old data, Site Recovery handles regional failover |
 | **Site Recovery** | Regional failover | Backup | Site Recovery switches to secondary region, Backup restores previous state |
 | **Metric** | Numeric time-series | Log | Metric is a number (CPU 75%), Log is an event record |
@@ -395,7 +395,7 @@ Resource
 |---|---|---|---|
 | **Role Assignment** | MG/Sub/RG/Resource | Yes (down) | An assignment at a management group can apply to descendant subscriptions |
 | **Azure Policy** | MG/Sub/RG | Yes (down) | Yes (MG can enforce across subs) |
-| **Resource Lock** | RG/Resource | No (only that level) | No |
+| **Resource Lock** | Subscription/RG/Resource | Yes (down) | A parent lock is inherited by child resources |
 | **Tag** | Resource/RG | No (must tag each) | No |
 | **VNet** | Resource Group | No | No (per RG) |
 | **VNet Peering** | Subscription | No | Yes (can peer across subs) |

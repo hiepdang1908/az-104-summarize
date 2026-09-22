@@ -28,7 +28,6 @@ This is an independent learning project. Microsoft Learn and current Azure produ
    - [Compute](Deploy_and_manage_Azure_compute_resources/DEPLOY_AND_MANAGE_AZURE_COMPUTE_RESOURCES.md)
    - [Networking, monitoring, and recovery](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)
 3. Review [AZ-104_HIGH_YIELD_RECALL.md](AZ-104_HIGH_YIELD_RECALL.md).
-4. Track the official objectives in [AZ-104_OBJECTIVE_MAP.md](AZ-104_OBJECTIVE_MAP.md).
 
 ## Current Blueprint Structure
 
@@ -64,7 +63,6 @@ az-104-summarize/
 ├── README.md
 ├── AZ-104_MASTER_MENTAL_MAP.md
 ├── AZ-104_HIGH_YIELD_RECALL.md
-├── AZ-104_OBJECTIVE_MAP.md
 ├── CHANGELOG.md
 ├── Manage_Azure_identities_and_governance/
 ├── Implement_and_manage_storage/
@@ -83,4 +81,4 @@ This is an independent educational resource. It is not affiliated with, sponsore
 
 ## Sources and Contributions
 
-The maintained official source list is [sources/official-sources.md](sources/official-sources.md). Contributions should preserve the knowledge-first scope, cite Microsoft documentation, avoid copied certification materials, and update the objective map when coverage changes.
+The maintained official source list is [sources/official-sources.md](sources/official-sources.md). Contributions should preserve the knowledge-first scope, cite Microsoft documentation, and avoid copied certification materials.

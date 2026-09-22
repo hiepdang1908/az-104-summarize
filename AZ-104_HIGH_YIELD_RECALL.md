@@ -2,7 +2,7 @@
 
 ---
 
-**← [Previous: Networking](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)** | **[Home](README.md)** | **[Next: Objective Map →](AZ-104_OBJECTIVE_MAP.md)**
+**← [Previous: Networking](Networking_monitoring_and_recovery/NETWORKING_MONITORING_AND_RECOVERY.md)** | **[Home](README.md)**
 
 ---
 
@@ -17,12 +17,12 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | Trigger | Think | Don't Confuse |
 |---|---|---|
 | Who can access this resource? | RBAC role assignment + scope | Azure Policy (configuration) |
-| Can this user assign roles? | Owner role | Contributor (cannot assign) |
+| Can this user assign roles? | Owner or appropriate access-management role | Contributor (cannot assign) |
 | Need to manage directory users? | Entra ID | Azure RBAC (controls resource access) |
 | Must prevent accidental deletion? | CanNotDelete lock | ReadOnly lock (also prevents modify) |
 | Must prevent modification? | ReadOnly lock | CanNotDelete (allows modify) |
 | Need to enforce configuration? | Azure Policy | RBAC (access control) |
-| Can policy be overridden? | Yes (via exemption) | Lock (cannot be overridden) |
+| Can policy be overridden? | Yes (via exemption) | Lock (remove it with lock-management permission) |
 | Scope inheritance? | Yes (down hierarchy only) | RBAC (no upward inheritance) |
 | Need billing separation? | New subscription | Resource Group (same billing) |
 | Bulk policy across subs? | Management Group | Subscription (one sub only) |
@@ -38,8 +38,8 @@ For learning, start with [AZ-104_MASTER_MENTAL_MAP.md](AZ-104_MASTER_MENTAL_MAP.
 | File shares (SMB/NFS)? | Azure Files | Blob (no mount, HTTP access) |
 | Need app-to-app messaging? | Queue Storage | Topic (publish-subscribe) |
 | How many copies? | Redundancy level (LRS/ZRS/GRS) | Backup (separate service) |
-| Single zone copies? | LRS | ZRS (three zones) |
-| Three zones, one region? | ZRS | LRS (single) or GZRS (zones + regions) |
+| One physical location copies? | LRS | ZRS (multiple availability zones) |
+| Multiple zones, one region? | ZRS | LRS (one physical location) or GZRS (zones + regions) |
 | Region failure resilience? | GRS / GZRS / RA-GRS | ZRS (zones only) |
 | Secondary readable without failover? | RA-GRS / RA-GZRS | GRS / GZRS (failover needed) |
 | Recover deleted blob (30 days)? | Soft Delete | Versioning (recover overwritten) |
@@ -168,7 +168,7 @@ Answer: Database Admin (control plane) + Data Plane Viewer excluded
 
 ```
 Can modify resources?
-    ├─ YES, can grant access → Owner
+    ├─ YES, can manage role assignments → Owner or appropriate access-management role
     ├─ YES, cannot grant access → Contributor
     └─ NO → Reader or specific role
 ```
@@ -252,7 +252,7 @@ When stuck on a scenario question:
 
 | Trap | Correct Answer | Why Tempting |
 |---|---|---|
-| Contributor can assign roles | False (only Owner) | Contributor sounds powerful |
+| Contributor can assign roles | False; Owner or an appropriate access-management role can | Contributor sounds powerful |
 | Policy can be enforced absolutely | False (has exemptions) | Lock can be absolute |
 | Soft Delete vs. Versioning are same | False (deletion vs. overwrite) | Both recover data |
 | Service Endpoint = Private IP | False (public endpoint) | Sounds like private |

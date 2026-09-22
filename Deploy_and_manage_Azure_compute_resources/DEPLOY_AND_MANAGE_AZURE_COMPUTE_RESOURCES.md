@@ -941,12 +941,12 @@ With cert: HTTPS (encrypted, browser shows green lock)
 
 **Certificate sources:**
 
-| Source | Cost | Setup Time | Auto-renewal |
-|---|---|---|---|
-| **App Service Managed Certificate** | App Service manages issuance and renewal | Suitable for supported custom domains |
-| **Azure Key Vault certificate** | Import and synchronize from Key Vault | Centralized certificate management |
-| **Uploaded private certificate** | Upload a supported password-protected PFX | Existing certificate from a trusted CA |
-| **Self-signed certificate** | Create and manage yourself | Testing, not public browser trust |
+| Source | Renewal behavior | Key point |
+|---|---|---|
+| **App Service Managed Certificate** | Automatically renews while prerequisites remain valid | Suitable for supported custom domains |
+| **Azure Key Vault certificate** | App Service can synchronize renewed Key Vault certificate versions when configured correctly | Certificate lifecycle is managed in Key Vault |
+| **Uploaded private certificate** | Administrator uploads a renewed certificate and updates the binding | Existing certificate from a trusted CA |
+| **Self-signed certificate** | Administrator-managed | Testing, not public browser trust |
 
 **Certificate prerequisites:** A TLS binding for a custom domain requires an App Service plan in Basic, Standard, Premium, or Isolated. The free App Service managed certificate also requires the domain to be mapped to the app. It does not support wildcard names, private DNS, export, or App Service Environment. A root-domain managed certificate requires the app to remain publicly reachable for certificate issuance and renewal.
 
@@ -1171,7 +1171,7 @@ Regulatory requirement: All temporary/cached data must be encrypted at hardware 
     ↓
 Enable encryption at host
 
-Alternative for full memory encryption: Use Confidential VM or Azure Disk Encryption
+Alternative for protection of data in use / VM memory: Use a Confidential VM. Azure Disk Encryption protects OS and data disks, not active memory.
 ```
 
 ---

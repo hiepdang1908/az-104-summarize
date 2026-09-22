@@ -277,11 +277,12 @@ RBAC controls this:
 **Data plane** = accessing data inside the resource
 
 ```
-RBAC does NOT control this:
-- Read/write files in storage account
-- Connect to database
-- Execute SQL queries
-→ Requires separate authentication (storage key, SAS, Entra ID)
+Data-plane access can use service-specific authentication and/or Azure RBAC roles
+that include DataActions:
+- Read/write blobs or files
+- Connect to a database
+- Execute service data operations
+→ Example: Storage Blob Data Reader + Microsoft Entra authentication
 ```
 
 **Example:**
@@ -546,10 +547,10 @@ Effect: Deny (block creation if not compliant)
 | Policy | Lock |
 |---|---|
 | **Controls:** Configuration compliance | **Controls:** Modification/deletion |
-| **Enforcement:** Preventive or audit | **Enforcement:** Absolute (even Owner cannot delete) |
-| **Can be bypassed by:** Exemption rules | **Can be bypassed by:** Removing lock (requires lock permission) |
+| **Enforcement:** Preventive or audit | **Enforcement:** Takes precedence over normal RBAC for protected control-plane operations |
+| **Can be bypassed by:** Exemption rules | **Can be removed by:** A principal with lock-management permission |
 | **Example:** Require tags on all resources | **Example:** Prevent accidental production database deletion |
-| **Scope:** Across subscriptions via MG | **Scope:** Resource Group or individual Resource |
+| **Scope:** Across subscriptions via MG | **Scope:** Subscription, Resource Group, or Resource; parent locks are inherited |
 
 ---
 
@@ -557,7 +558,7 @@ Effect: Deny (block creation if not compliant)
 
 ### What It Means
 
-A lock is an absolute prohibition on modification or deletion.
+A lock restricts Azure Resource Manager modification or deletion until it is removed by a principal with lock-management permission.
 
 **Two lock types:**
 
@@ -605,16 +606,20 @@ Result: Even Contributor cannot delete
 ```
 
 ```text
-Scenario: Critical configuration file in storage
-Risk: Script accidentally modifies
+Scenario: Critical storage account configuration
+Risk: Script accidentally modifies account settings
 Solution: ReadOnly lock on storage account
     ↓
-Result: Even if script has write permissions, it cannot modify
+Result: Azure Resource Manager cannot modify the account until the lock is removed
 ```
 
 ### Lock Scope
 
 ```text
+Lock at Subscription level
+    ↓
+Inherited by resource groups and resources in that subscription
+
 Lock at Resource Group level
     ↓
 Inherited by all resources in RG
@@ -797,9 +802,9 @@ Azure Policy
 ├── Example: Policy requires encryption, but exemption allows unencrypted
 
 Resource Lock
-├── Enforces: Prevents modification/deletion
-├── Cannot be bypassed: Only removable by lock owner
-├── Example: Lock prevents deletion; no exemption possible
+├── Enforces: Prevents protected control-plane modification/deletion
+├── Takes precedence over normal RBAC until removed by a principal with lock permission
+├── Example: Lock prevents deletion; no exemption mechanism exists
 ```
 
 ### Contributor vs. Owner
@@ -923,7 +928,7 @@ Policies:
 
 **Governance:**
 - Policy = enforce configuration (can be overridden)
-- Lock = prevent modification/deletion (cannot be overridden)
+- Lock = control-plane protection; remove it with lock-management permission
 - Tags = metadata for organization (not enforced)
 
 **Organization:**
@@ -939,7 +944,7 @@ Policies:
 **Key Distinctions:**
 - Entra ID = identity; RBAC = authorization
 - RBAC = who; Policy = compliance
-- Policy = can be exempted; Lock = cannot
+- Policy = can be exempted; Lock = can be removed only with lock-management permission
 - Scope inherited = down hierarchy only
 - Tags don't enforce = need policy for enforcement
 
